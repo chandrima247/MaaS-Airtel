@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J-Junior Health Insurance | NxtPe Insure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #111111;
+    --accent: #ba0c2f;
+    --accent-soft: #fdf0f3;
+    --bg: #ffffff;
+    --bg-alt: #f7f7f8;
+    --ink: #18181b;
+    --ink-light: #6b7280;
+    --border: #e5e7eb;
+    --success: #11875d;
+    --radius: 18px;
+    --shadow: 0 16px 40px rgba(17, 24, 39, 0.08);
+    --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-serif: "Instrument Serif", Georgia, serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 72px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+  }
+
+  .nav-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-size: 20px;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-light);
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    color: var(--ink);
+  }
+
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .nav-cta:hover,
+  .nav-cta:focus-visible {
+    transform: translateY(-1px);
+    background: #2a2a2f;
+  }
+
+  .pdp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 56px;
+    padding: 52px 0 72px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-light);
+  }
+
+  .breadcrumb a {
+    text-decoration: none;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 7px 12px;
+    border: 1px solid rgba(186, 12, 47, 0.2);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(42px, 6vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    margin-bottom: 16px;
+  }
+
+  .product-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .insurer-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink-light);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .insurer-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .description {
+    max-width: 720px;
+    margin-bottom: 28px;
+    color: var(--ink-light);
+    font-size: 18px;
+  }
+
+  .lead-visual {
+    max-width: 760px;
+    margin-bottom: 28px;
+  }
+
+  .lead-visual-frame {
+    overflow: hidden;
+    border-radius: 28px;
+    min-height: 340px;
+    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, #ffffff 0%, #faf8f9 100%);
+  }
+
+  .lead-visual-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 28%;
+  }
+
+  .section-block {
+    padding-top: 36px;
+    margin-top: 36px;
+    border-top: 1px solid var(--border);
+  }
+
+  h2.subhead {
+    margin-bottom: 12px;
+    font-size: 26px;
+    letter-spacing: -0.03em;
+  }
+
+  .section-copy {
+    margin-bottom: 24px;
+    color: var(--ink-light);
+    font-size: 15px;
+    max-width: 760px;
+  }
+
+  .steps-grid,
+  .mini-grid,
+  .doc-grid,
+  .wait-grid,
+  .faq-grid,
+  .coverage-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .steps-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .step-card,
+  .mini-card,
+  .doc-card,
+  .wait-card,
+  .faq-item,
+  .coverage-card {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .step-number,
+  .mini-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin-bottom: 14px;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .step-card h3,
+  .mini-card h3,
+  .wait-card h3,
+  .coverage-card h3,
+  .faq-q {
+    font-size: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .step-card p,
+  .mini-card p,
+  .doc-card p,
+  .wait-card p,
+  .coverage-card p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--ink-light);
+  }
+
+  .benefit-list {
+    list-style: none;
+  }
+
+  .benefit-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .benefit-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .benefit-content h4 {
+    margin-bottom: 4px;
+    font-size: 16px;
+  }
+
+  .benefit-content p {
+    color: var(--ink-light);
+    font-size: 14px;
+  }
+
+  .coverage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .coverage-card {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .coverage-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--bg-alt);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+  }
+
+  .coverage-card.exclusion .coverage-icon {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .split-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .split-panel .media {
+    overflow: hidden;
+    border-radius: 20px;
+    min-height: 100%;
+  }
+
+  .split-panel .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .plain-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .plain-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-size: 14px;
+    color: var(--ink-light);
+  }
+
+  .plain-item strong {
+    color: var(--ink);
+  }
+
+  .check {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: #eefbf5;
+    color: var(--success);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .doc-grid,
+  .wait-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .doc-card h3,
+  .wait-card h3 {
+    margin-bottom: 6px;
+  }
+
+  .inline-note {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--ink-light);
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .review-card {
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: #fff;
+  }
+
+  .review-card h3 {
+    margin-bottom: 16px;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+
+  .review-flow {
+    display: grid;
+    gap: 14px;
+  }
+
+  .review-step {
+    display: flex;
+    gap: 12px;
+  }
+
+  .review-step strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  .review-step p {
+    font-size: 13px;
+    color: var(--ink-light);
+  }
+
+  .doc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .doc-pill {
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .plan-compare {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+
+  .plan-compare thead th {
+    background: #111111;
+    color: #ffffff;
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .plan-compare td,
+  .plan-compare th[scope="row"] {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .plan-compare tbody tr:nth-child(even) {
+    background: var(--bg-alt);
+  }
+
+  .faq-item {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .faq-q {
+    width: 100%;
+    border: 0;
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    font-weight: 700;
+    font-family: inherit;
+  }
+
+  .faq-plus {
+    font-size: 24px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .faq-a {
+    display: none;
+    padding: 0 22px 20px;
+    color: var(--ink-light);
+    font-size: 14px;
+  }
+
+  .faq-item.open .faq-a {
+    display: block;
+  }
+
+  .faq-item.open .faq-plus {
+    transform: rotate(45deg);
+  }
+
+  .checkout-card {
+    position: sticky;
+    top: 82px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    max-height: calc(100vh - 92px);
+  }
+
+  .checkout-price {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .price-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--ink-light);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .price-val {
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .price-val small {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-light);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .quote-top-action {
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    padding: 9px 12px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .quote-top-action:hover,
+  .quote-top-action:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(186, 12, 47, 0.34);
+  }
+
+  .calc-group {
+    margin-bottom: 12px;
+  }
+
+  .calc-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ink-light);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .button-grid.plan-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .choice-btn {
+    min-height: 42px;
+    padding: 8px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  }
+
+  .choice-btn small {
+    display: block;
+    margin-top: 1px;
+    color: var(--ink-light);
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .choice-btn:hover,
+  .choice-btn:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(186, 12, 47, 0.4);
+  }
+
+  .choice-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .addon-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .addon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 5px;
+    min-height: 60px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    position: relative;
+  }
+
+  .addon-item.disabled {
+    opacity: 0.55;
+  }
+
+  .addon-main {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .addon-main strong {
+    font-size: 11px;
+  }
+
+  .addon-main span {
+    color: var(--ink-light);
+    font-size: 9.5px;
+    line-height: 1.2;
+  }
+
+  .addon-item input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  .stepper {
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .stepper button,
+  .stepper input {
+    border: 0;
+    background: #fff;
+    font: inherit;
+    text-align: center;
+  }
+
+  .stepper button {
+    width: 34px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .stepper input {
+    width: 40px;
+    height: 36px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .member-row {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-alt);
+  }
+
+  .summary-box {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .summary-panels {
+    display: none;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .summary-panel {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .summary-panel summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 11px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .summary-panel summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-preview {
+    color: var(--ink-light);
+    font-size: 10.5px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .summary-body {
+    padding: 0 11px 10px;
+  }
+
+  .summary-lines {
+    display: grid;
+    gap: 5px;
+  }
+
+  .summary-line {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+  }
+
+  .summary-line span:first-child {
+    color: var(--ink-light);
+  }
+
+  .summary-line strong {
+    text-align: right;
+  }
+
+  .cta-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .checkout-card .summary-box > .cta-stack {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+
+  .btn-pay,
+  .btn-secondary {
+    width: 100%;
+    border-radius: 12px;
+    padding: 11px 12px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .btn-pay {
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .btn-pay:hover,
+  .btn-pay:focus-visible {
+    transform: translateY(-1px);
+    background: #2a2a2f;
+  }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--ink);
+  }
+
+  .btn-secondary:hover,
+  .btn-secondary:focus-visible {
+    transform: translateY(-1px);
+    border-color: #d1d5db;
+  }
+
+  .card-note {
+    margin-top: 6px;
+    color: var(--ink-light);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .ipf-card {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(186, 12, 47, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .ipf-card strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+
+  .ipf-card p {
+    color: var(--ink-light);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .ipf-cta {
+    flex-shrink: 0;
+    border: 1px solid rgba(186, 12, 47, 0.22);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--accent);
+    padding: 8px 10px;
+    font: inherit;
+    font-size: 10.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .ipf-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(17, 24, 39, 0.42);
+    backdrop-filter: blur(10px);
+  }
+
+  .ipf-modal.open {
+    display: flex;
+  }
+
+  .ipf-modal-card {
+    width: min(520px, 100%);
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 28px 90px rgba(0,0,0,0.22);
+    padding: 24px;
+  }
+
+  .ipf-modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+
+  .ipf-modal-head h3 {
+    font-size: 28px;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .ipf-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .ipf-breakdown-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ipf-option-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg-alt);
+  }
+
+  .ipf-option-row strong {
+    display: block;
+    font-size: 15px;
+  }
+
+  .ipf-option-row span,
+  .ipf-modal-note {
+    color: var(--ink-light);
+    font-size: 12px;
+  }
+
+  .ipf-option-row b {
+    text-align: right;
+    font-size: 17px;
+  }
+
+  .ipf-modal-note {
+    margin-top: 14px;
+  }
+
+  .quote-breakdown-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .quote-breakdown-section {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    background: var(--bg-alt);
+  }
+
+  .quote-breakdown-section h4 {
+    margin-bottom: 10px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .quote-breakdown-section .summary-lines {
+    gap: 8px;
+  }
+
+  .footer-note {
+    margin-top: 48px;
+    padding: 26px 0 42px;
+    border-top: 1px solid var(--border);
+    color: var(--ink-light);
+    font-size: 13px;
+  }
+
+  @media (max-width: 1024px) {
+    .pdp-grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    .checkout-card {
+      position: relative;
+      top: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .container {
+      padding: 0 18px;
+    }
+
+    nav {
+      height: auto;
+    }
+
+    .nav-inner {
+      flex-wrap: wrap;
+      padding: 16px 0;
+    }
+
+    .nav-links {
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .hero-panel,
+    .split-panel,
+    .review-grid,
+    .steps-grid,
+    .doc-grid,
+    .wait-grid,
+    .coverage-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .button-grid.plan-grid,
+    .button-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .checkout-card {
+      max-height: none;
+    }
+
+    .cta-stack {
+      grid-template-columns: 1fr;
+    }
+
+    .plan-compare {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="logo">NxtPe<span>Insure</span></a>
+    <div class="nav-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#coverage">Coverage</a>
+      <a href="#eligibility">Eligibility</a>
+      <a href="#claims">Claims</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#quote-card" class="nav-cta">Get Quote</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="pdp-grid">
+    <div class="pdp-left">
+      <div class="breadcrumb">
+        <a href="#">Home</a>
+        <span>/</span>
+        <a href="#">Health Insurance</a>
+        <span>/</span>
+        <span>J-Junior</span>
+      </div>
+
+      <div class="lead-visual">
+        <div class="lead-visual-frame">
+          <img src="assets/hero_2.png" alt="J-Junior health insurance cover">
+        </div>
+      </div>
+
+      <h1>J-Junior Health Insurance</h1>
+
+      <p class="description">Protect your loved ones with a plan that covers hospitalization, outpatient care, dental, and optical services. Access a countrywide network of providers and apply fully online in minutes.</p>
+
+      <section class="section-block" id="how-it-works">
+        <h2 class="subhead">Apply in 4 Simple Steps</h2>
+        <p class="section-copy">From parent details to payment, the journey is straightforward and fully guided online.</p>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Your Details</h3>
+            <p>Add the parent or guardian details, contact information, address, and next of kin.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Child Information</h3>
+            <p>Provide the child details, identification, and the dependants you want covered under the plan.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Select Plan & Benefits</h3>
+            <p>Choose one of the five J-Junior plans, then add outpatient, dental, and optical if needed.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <h3>Confirm & Pay</h3>
+            <p>Review your quote, confirm the selected cover, and complete payment to activate the policy.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="benefits">
+        <h2 class="subhead">Why this plan?</h2>
+        <p class="section-copy">The benefit logic and sales story here are pulled from the J-Junior page, but presented in the tighter `pdp1` section style.</p>
+        <div class="split-panel">
+          <div>
+            <div class="benefit-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">+</div>
+                <div class="benefit-content">
+                  <h4>Built Around Child Care</h4>
+                  <p>Start with inpatient cover, then add outpatient, dental, and optical if needed.</p>
+                </div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">=</div>
+                <div class="benefit-content">
+                  <h4>Clear Plan Choices</h4>
+                  <p>Pick from five plans with visible annual limits, so it is easy to match cover to your budget.</p>
+                </div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">IP</div>
+                <div class="benefit-content">
+                  <h4>Pay Now or Use IPF</h4>
+                  <p>Spread the premium into installments with IPF when a one-off payment feels too heavy.</p>
+                </div>
+              </div>
+              <div class="benefit-item" style="margin-bottom:0;">
+                <div class="benefit-icon">OK</div>
+                <div class="benefit-content">
+                  <h4>Simple Digital Journey</h4>
+                  <p>Get a quote, fill the form, and pay online with a guided flow and less back-and-forth.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="media">
+            <img src="assets/card_1.png" alt="J-Junior benefits overview">
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="coverage">
+        <h2 class="subhead">What's Covered in Your Plan</h2>
+        <p class="section-copy">Comprehensive health insurance coverage for children and dependants, with optional add-ons surfaced only when selected in the quote card.</p>
+        <div class="coverage-grid">
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Hospitalization</h3>
+              <p>Inpatient admission, surgery, ICU, and related treatment costs.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Outpatient Care</h3>
+              <p>Doctor visits, tests, medication, and follow-up treatment.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Maternity Benefits</h3>
+              <p>Essential maternity services within plan limits and terms where applicable.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Dental Care</h3>
+              <p>Consultations, fillings, extractions, and dental prescriptions.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Optical Care</h3>
+              <p>Eye tests, frames, and prescription lenses within limits.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Emergency Services</h3>
+              <p>Ambulance support and emergency care as covered by plan.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Specialist Consultations</h3>
+              <p>Access to specialist reviews and treatment recommendations.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Preventive Care</h3>
+              <p>Screening and preventive health checks for ongoing wellness.</p>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="coverage-icon">+</div>
+            <div>
+              <h3>Pharmacy Benefits</h3>
+              <p>Prescribed medication support according to plan benefits.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="exclusions">
+        <h2 class="subhead">What's Not Covered</h2>
+        <p class="section-copy">These exclusions are kept from the J-Junior content structure and laid out like a tighter PDP exclusion grid.</p>
+        <div class="coverage-grid">
+          <div class="coverage-card exclusion">
+            <div class="coverage-icon">x</div>
+            <div>
+              <h3>Cosmetic Procedures</h3>
+              <p>Unless required because of accidental injury.</p>
+            </div>
+          </div>
+          <div class="coverage-card exclusion">
+            <div class="coverage-icon">x</div>
+            <div>
+              <h3>Alternative Treatments</h3>
+              <p>Herbal medicine, acupuncture, and chiropractic care.</p>
+            </div>
+          </div>
+          <div class="coverage-card exclusion">
+            <div class="coverage-icon">x</div>
+            <div>
+              <h3>Hazardous Activities</h3>
+              <p>Injuries resulting from extreme or hazardous activities.</p>
+            </div>
+          </div>
+          <div class="coverage-card exclusion">
+            <div class="coverage-icon">x</div>
+            <div>
+              <h3>Fertility Services</h3>
+              <p>Treatments, family planning, and related services.</p>
+            </div>
+          </div>
+          <div class="coverage-card exclusion">
+            <div class="coverage-icon">x</div>
+            <div>
+              <h3>Weight Loss Treatments</h3>
+              <p>Obesity-related programs and treatments not included by policy terms.</p>
+            </div>
+          </div>
+          <div class="coverage-card exclusion">
+            <div class="coverage-icon">x</div>
+            <div>
+              <h3>Intentional Self-Harm</h3>
+              <p>Including substance abuse or medical non-compliance scenarios.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="subhead">Plan Snapshot</h2>
+        <p class="section-copy">This comparison condenses the plan details logic from the J-Junior calculator so users can compare before they commit in the sticky quote card.</p>
+        <table class="plan-compare">
+          <thead>
+            <tr>
+              <th>Benefit</th>
+              <th>Classic</th>
+              <th>Premier</th>
+              <th>Advanced</th>
+              <th>Executive</th>
+              <th>Royal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Inpatient</th>
+              <td>UGX 15M</td>
+              <td>UGX 30M</td>
+              <td>UGX 60M</td>
+              <td>UGX 90M</td>
+              <td>UGX 150M</td>
+            </tr>
+            <tr>
+              <th scope="row">Outpatient</th>
+              <td>UGX 1.5M</td>
+              <td>UGX 1.5M</td>
+              <td>UGX 2.4M</td>
+              <td>UGX 3M</td>
+              <td>UGX 4.5M</td>
+            </tr>
+            <tr>
+              <th scope="row">Dental</th>
+              <td>UGX 150K</td>
+              <td>UGX 300K</td>
+              <td>UGX 600K</td>
+              <td>UGX 900K</td>
+              <td>UGX 1.2M</td>
+            </tr>
+            <tr>
+              <th scope="row">Optical</th>
+              <td>UGX 150K</td>
+              <td>UGX 300K</td>
+              <td>UGX 600K</td>
+              <td>UGX 900K</td>
+              <td>UGX 1.2M</td>
+            </tr>
+            <tr>
+              <th scope="row">Last Expense</th>
+              <td>UGX 1.5M</td>
+              <td>UGX 1.5M</td>
+              <td>UGX 2.25M</td>
+              <td>UGX 3M</td>
+              <td>UGX 3M</td>
+            </tr>
+            <tr>
+              <th scope="row">Indicative base annual premium</th>
+              <td>UGX 1,010,038</td>
+              <td>UGX 1,241,577</td>
+              <td>UGX 1,635,194</td>
+              <td>UGX 2,003,084</td>
+              <td>UGX 2,569,069</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-block" id="eligibility">
+        <h2 class="subhead">Who Can Apply for J-Junior</h2>
+        <p class="section-copy">Eligibility and preparation requirements are preserved from the Jubilee version, just reorganized into this product-detail reading flow.</p>
+        <div class="split-panel">
+          <div class="plain-list">
+            <div class="plain-item">
+              <div class="check">+</div>
+              <div><strong>Ugandan residents</strong> - citizens and legal residents.</div>
+            </div>
+            <div class="plain-item">
+              <div class="check">+</div>
+              <div><strong>Individuals and families</strong> seeking comprehensive health coverage.</div>
+            </div>
+            <div class="plain-item">
+              <div class="check">+</div>
+              <div>People with <strong>valid ID and contact information</strong>.</div>
+            </div>
+            <div class="plain-item">
+              <div class="check">+</div>
+              <div><strong>Children and dependants</strong> included under family plans.</div>
+            </div>
+            <p class="inline-note">Coverage for pre-existing, chronic, and congenital conditions is available subject to full disclosure and applicable waiting periods.</p>
+          </div>
+          <div class="media">
+            <img src="assets/eligible.png" alt="Eligibility for J-Junior cover">
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="before">
+        <h2 class="subhead">Keep These Ready</h2>
+        <p class="section-copy">A few key details will help users complete the application faster.</p>
+        <div class="doc-grid">
+          <div class="doc-card">
+            <h3>Guardian Details</h3>
+            <p>Keep the parent or guardian NIN, phone number, email address, and next-of-kin details close by.</p>
+          </div>
+          <div class="doc-card">
+            <h3>Child Identification</h3>
+            <p>Have each child's birth certificate number or NIN ready, together with date of birth and basic details.</p>
+          </div>
+          <div class="doc-card">
+            <h3>Address & Dependant Information</h3>
+            <p>You may need village, district, county, sub-county, parish, and dependant information for family cover.</p>
+          </div>
+          <div class="doc-card">
+            <h3>Cover & Health Information</h3>
+            <p>Be ready to declare previous cover, medical conditions, plan choice, and whether you will pay now or use IPF.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="enrollment">
+        <h2 class="subhead">Enrollment & Policy Documents</h2>
+        <p class="section-copy">What happens after the J-Junior application is submitted and approved.</p>
+        <div class="review-grid">
+          <div class="review-card">
+            <h3>Application Review</h3>
+            <div class="review-flow">
+              <div class="review-step">
+                <div class="mini-number">1</div>
+                <div>
+                  <strong>Application checked</strong>
+                  <p>Applications are reviewed within 3 working days of submission.</p>
+                </div>
+              </div>
+              <div class="review-step">
+                <div class="mini-number">2</div>
+                <div>
+                  <strong>Approval & payment</strong>
+                  <p>Once approved and payment is confirmed, cover is activated.</p>
+                </div>
+              </div>
+              <div class="review-step">
+                <div class="mini-number">3</div>
+                <div>
+                  <strong>Welcome notification</strong>
+                  <p>You receive confirmation by SMS or email with policy details.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="review-card">
+            <h3>You Will Receive</h3>
+            <div class="doc-pills">
+              <div class="doc-pill">Membership Card</div>
+              <div class="doc-pill">Policy Document</div>
+              <div class="doc-pill">Welcome Letter</div>
+              <div class="doc-pill">Provider Network List</div>
+            </div>
+            <p class="inline-note">These documents confirm activation, limits, terms, waiting periods, and where the member can access care.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="claims">
+        <h2 class="subhead">Simple and Guided Claims Experience</h2>
+        <p class="section-copy">Know what to do, what to submit, and how the claim moves to settlement.</p>
+        <div class="split-panel">
+          <div>
+            <div class="mini-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom:18px;">
+              <div class="mini-card">
+                <div class="mini-number">1</div>
+                <h3>Report</h3>
+                <p>Notify the team as soon as possible.</p>
+              </div>
+              <div class="mini-card">
+                <div class="mini-number">2</div>
+                <h3>Submit</h3>
+                <p>Share reports, receipts, and forms.</p>
+              </div>
+              <div class="mini-card">
+                <div class="mini-number">3</div>
+                <h3>Assessment</h3>
+                <p>The claim is reviewed and verified.</p>
+              </div>
+              <div class="mini-card">
+                <div class="mini-number">4</div>
+                <h3>Settlement</h3>
+                <p>Approved claims are processed and paid.</p>
+              </div>
+            </div>
+            <div class="doc-pills">
+              <div class="doc-pill">Medical card</div>
+              <div class="doc-pill">Medical reports and receipts</div>
+              <div class="doc-pill">Prescription documents</div>
+              <div class="doc-pill">Pre-authorization letter</div>
+            </div>
+          </div>
+          <div class="media">
+            <img src="assets/claim2.png" alt="J-Junior claims support">
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" id="waiting-periods">
+        <h2 class="subhead">Waiting Periods</h2>
+        <p class="section-copy">Be aware of these timelines before using certain benefits.</p>
+        <div class="wait-grid">
+          <div class="wait-card">
+            <h3>General Illness</h3>
+            <p>30 days from policy start.</p>
+          </div>
+          <div class="wait-card">
+            <h3>Pre-existing & Chronic Conditions</h3>
+            <p>1 year from policy start.</p>
+          </div>
+          <div class="wait-card">
+            <h3>Cancer Treatment</h3>
+            <p>2 years from policy start.</p>
+          </div>
+          <div class="wait-card">
+            <h3>Congenital & Inherited Conditions</h3>
+            <p>1 year from policy start.</p>
+          </div>
+        </div>
+        <p class="inline-note">Waiting periods begin from the policy effective date. After they are satisfied, covered conditions become eligible for benefits subject to the plan terms.</p>
+      </section>
+
+      <section class="section-block" id="faq">
+        <h2 class="subhead">Frequently Asked Questions</h2>
+        <p class="section-copy">The FAQ content is adapted from the J-Junior page, with the obviously generic leftovers rewritten for this product.</p>
+        <div class="faq-grid">
+          <div class="faq-item open">
+            <button class="faq-q" type="button">
+              <span>How long does the application take?</span>
+              <span class="faq-plus">+</span>
+            </button>
+            <div class="faq-a">Around 5 to 10 minutes if the documents are ready. The journey is fully online with step-by-step guidance.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>Is KYC mandatory?</span>
+              <span class="faq-plus">+</span>
+            </button>
+            <div class="faq-a">Yes. KYC verification is required for policy approval, fraud prevention, and claims processing.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>Can I customize the benefits?</span>
+              <span class="faq-plus">+</span>
+            </button>
+            <div class="faq-a">Yes. Users can choose the plan first, then add outpatient, dental, and optical depending on the cover they need.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>When does coverage start?</span>
+              <span class="faq-plus">+</span>
+            </button>
+            <div class="faq-a">Coverage begins after successful payment and policy approval. Policy documents confirm the effective cover date.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>Can I update the policy later?</span>
+              <span class="faq-plus">+</span>
+            </button>
+            <div class="faq-a">Policy updates depend on underwriting and product rules, but additions or plan changes can be reviewed after the initial setup.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>How are claims processed?</span>
+              <span class="faq-plus">+</span>
+            </button>
+            <div class="faq-a">Submit the required documents and proof, the team verifies the claim, and approved settlements are processed in line with the policy terms.</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">Indicative figures and limits are presented for product comparison and journey design. Final pricing remains subject to underwriting, levy, stamp duty, and policy terms.</div>
+    </div>
+
+    <div class="pdp-right">
+      <aside class="checkout-card" id="quote-card">
+        <div class="checkout-price">
+          <div>
+            <span class="price-label">Indicative Premium</span>
+            <div class="price-val" id="totalPremium">UGX 408,036<small id="coverCount">Covers 1 person</small></div>
+          </div>
+          <button class="quote-top-action" type="button" id="downloadQuote">Save Quote</button>
+        </div>
+
+        <div class="calc-group">
+          <label class="calc-label">Plan</label>
+          <div class="button-grid plan-grid" id="planButtons">
+            <button class="choice-btn active" type="button" data-plan="classic">Classic</button>
+            <button class="choice-btn" type="button" data-plan="premier">Premier</button>
+            <button class="choice-btn" type="button" data-plan="advanced">Adv.</button>
+            <button class="choice-btn" type="button" data-plan="executive">Exec.</button>
+            <button class="choice-btn" type="button" data-plan="royal">Royal</button>
+          </div>
+        </div>
+
+        <div class="calc-group">
+          <label class="calc-label">Cover</label>
+          <div class="button-grid" id="planTypeButtons">
+            <button class="choice-btn active" type="button" data-plan-type="individual">Solo</button>
+            <button class="choice-btn" type="button" data-plan-type="family">Family</button>
+          </div>
+          <div class="member-row" id="memberRow">
+            <strong>Members</strong>
+            <div class="stepper">
+              <button type="button" id="decreaseMembers">-</button>
+              <input id="memberCount" type="number" min="1" step="1" value="1">
+              <button type="button" id="increaseMembers">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-group">
+          <label class="calc-label">Add-ons</label>
+          <div class="addon-list">
+            <label class="addon-item" id="outpatientWrap">
+              <div class="addon-main">
+                <strong>OPD</strong>
+                <span id="outpatientHint">1.5M cover</span>
+              </div>
+              <input type="checkbox" id="outpatientToggle">
+            </label>
+            <label class="addon-item disabled" id="dentalWrap">
+              <div class="addon-main">
+                <strong>Dental</strong>
+                <span id="dentalHint">150K cover</span>
+              </div>
+              <input type="checkbox" id="dentalToggle" disabled>
+            </label>
+            <label class="addon-item disabled" id="opticalWrap">
+              <div class="addon-main">
+                <strong>Optical</strong>
+                <span id="opticalHint">150K cover</span>
+              </div>
+              <input type="checkbox" id="opticalToggle" disabled>
+            </label>
+          </div>
+          <p class="card-note">Dental and optical unlock after OPD.</p>
+        </div>
+
+        <div class="summary-box">
+          <div class="ipf-card">
+            <div>
+              <strong>Pay in installments</strong>
+              <p id="ipfSummary">Split this premium into monthly IPF payments.</p>
+            </div>
+            <button class="ipf-cta" type="button" id="viewIpfBreakdown">View IPF</button>
+          </div>
+
+          <div class="cta-stack">
+            <button class="btn-pay" type="button" id="startApplication">Start Application</button>
+            <button class="btn-secondary" type="button" id="comparePlans">Compare Plans</button>
+          </div>
+
+          <div class="summary-panels">
+            <details class="summary-panel">
+              <summary>
+                <span>Coverage</span>
+                <span class="summary-preview" id="coveragePreview">15M IP + 1.5M LE</span>
+              </summary>
+              <div class="summary-body">
+                <div class="summary-lines" id="limitSummary">
+                  <div class="summary-line">
+                    <span>Inpatient</span>
+                    <strong id="limitInpatient">UGX 15,000,000</strong>
+                  </div>
+                  <div class="summary-line">
+                    <span>Last expense</span>
+                    <strong id="limitLastExpense">UGX 1,500,000</strong>
+                  </div>
+                  <div class="summary-line" id="lineOutpatient" hidden>
+                    <span>OPD</span>
+                    <strong id="limitOutpatient">UGX 1,500,000</strong>
+                  </div>
+                  <div class="summary-line" id="lineDental" hidden>
+                    <span>Dental</span>
+                    <strong id="limitDental">UGX 150,000</strong>
+                  </div>
+                  <div class="summary-line" id="lineOptical" hidden>
+                    <span>Optical</span>
+                    <strong id="limitOptical">UGX 150,000</strong>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <details class="summary-panel">
+              <summary>
+                <span>Premium breakdown</span>
+                <span class="summary-preview" id="premiumPreview">Base + fees</span>
+              </summary>
+              <div class="summary-body">
+                <div class="summary-lines">
+                  <div class="summary-line">
+                    <span>Inpatient</span>
+                    <strong id="premiumInpatient">UGX 348,141</strong>
+                  </div>
+                  <div class="summary-line" id="premiumOutpatientRow" hidden>
+                    <span>OPD</span>
+                    <strong id="premiumOutpatient">UGX 481,254</strong>
+                  </div>
+                  <div class="summary-line" id="premiumDentalRow" hidden>
+                    <span>Dental</span>
+                    <strong id="premiumDental">UGX 58,877</strong>
+                  </div>
+                  <div class="summary-line" id="premiumOpticalRow" hidden>
+                    <span>Optical</span>
+                    <strong id="premiumOptical">UGX 58,877</strong>
+                  </div>
+                  <div class="summary-line">
+                    <span>Last expense</span>
+                    <strong id="premiumLastExpense">UGX 23,039</strong>
+                  </div>
+                  <div class="summary-line">
+                    <span>Levy</span>
+                    <strong id="premiumLevy">UGX 2,015</strong>
+                  </div>
+                  <div class="summary-line">
+                    <span>Stamp duty</span>
+                    <strong id="premiumStamp">UGX 35,000</strong>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <p class="card-note">Indicative only. Final premium is subject to underwriting.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<div class="ipf-modal" id="ipfModal" aria-hidden="true" role="dialog" aria-labelledby="ipfModalTitle">
+  <div class="ipf-modal-card">
+    <div class="ipf-modal-head">
+      <div>
+        <span class="price-label">Installment payment facility</span>
+        <h3 id="ipfModalTitle">Pay monthly instead of upfront.</h3>
+      </div>
+      <button class="ipf-close" type="button" id="closeIpfModal" aria-label="Close IPF breakdown">x</button>
+    </div>
+    <div class="ipf-breakdown-list" id="ipfBreakdownList"></div>
+    <p class="ipf-modal-note">Indicative IPF schedule only. Final approval, fees, and repayment terms are confirmed by the financing partner during application.</p>
+    <div class="cta-stack">
+      <button class="btn-pay" type="button" id="startIpfApplication">Apply with IPF</button>
+      <button class="btn-secondary" type="button" id="closeIpfModalSecondary">Keep editing</button>
+    </div>
+  </div>
+</div>
+
+<div class="ipf-modal" id="quoteModal" aria-hidden="true" role="dialog" aria-labelledby="quoteModalTitle">
+  <div class="ipf-modal-card">
+    <div class="ipf-modal-head">
+      <div>
+        <span class="price-label">Saved quote</span>
+        <h3 id="quoteModalTitle">Quote breakdown and options.</h3>
+      </div>
+      <button class="ipf-close" type="button" id="closeQuoteModal" aria-label="Close quote breakdown">x</button>
+    </div>
+    <div class="quote-breakdown-grid" id="quoteBreakdownList"></div>
+    <p class="ipf-modal-note">Indicative only. Final premium is subject to underwriting and financing approval where IPF is selected.</p>
+    <div class="cta-stack">
+      <button class="btn-pay" type="button" id="downloadQuoteFile">Download Quote</button>
+      <button class="btn-secondary" type="button" id="shareQuote">Share Quote</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const planData = {
+    classic: {
+      name: "Classic",
+      inpatientLimit: 15000000,
+      outpatientLimit: 1500000,
+      dentalLimit: 150000,
+      opticalLimit: 150000,
+      lastExpenseLimit: 1500000,
+      brochurePremium: 1010038,
+      premiums: { inpatient: 348141, outpatient: 481254, dental: 58877, optical: 58877, lastExpense: 23039 }
+    },
+    premier: {
+      name: "Premier",
+      inpatientLimit: 30000000,
+      outpatientLimit: 1500000,
+      dentalLimit: 300000,
+      opticalLimit: 300000,
+      lastExpenseLimit: 1500000,
+      brochurePremium: 1241577,
+      premiums: { inpatient: 542690, outpatient: 481254, dental: 76796, optical: 76796, lastExpense: 23039 }
+    },
+    advanced: {
+      name: "Advanced",
+      inpatientLimit: 60000000,
+      outpatientLimit: 2400000,
+      dentalLimit: 600000,
+      opticalLimit: 600000,
+      lastExpenseLimit: 2250000,
+      brochurePremium: 1635194,
+      premiums: { inpatient: 668123, outpatient: 575969, dental: 156151, optical: 156151, lastExpense: 35838 }
+    },
+    executive: {
+      name: "Executive",
+      inpatientLimit: 90000000,
+      outpatientLimit: 3000000,
+      dentalLimit: 900000,
+      opticalLimit: 900000,
+      lastExpenseLimit: 3000000,
+      brochurePremium: 2003084,
+      premiums: { inpatient: 831955, outpatient: 614366, dental: 232947, optical: 232947, lastExpense: 46077 }
+    },
+    royal: {
+      name: "Royal",
+      inpatientLimit: 150000000,
+      outpatientLimit: 4500000,
+      dentalLimit: 1200000,
+      opticalLimit: 1200000,
+      lastExpenseLimit: 3000000,
+      brochurePremium: 2569069,
+      premiums: { inpatient: 959948, outpatient: 737240, dental: 389099, optical: 389099, lastExpense: 46077 }
+    }
+  };
+
+  const levyRate = 0.005;
+  const stampDuty = 35000;
+  const ipfOptions = [
+    { months: 9, repaymentFactor: 1.102051192933269 },
+    { months: 6, repaymentFactor: 1.0999921577482356 }
+  ];
+
+  const state = {
+    plan: "classic",
+    planType: "individual"
+  };
+
+  const refs = {
+    planButtons: Array.from(document.querySelectorAll("[data-plan]")),
+    planTypeButtons: Array.from(document.querySelectorAll("[data-plan-type]")),
+    memberRow: document.getElementById("memberRow"),
+    memberCount: document.getElementById("memberCount"),
+    outpatientToggle: document.getElementById("outpatientToggle"),
+    dentalToggle: document.getElementById("dentalToggle"),
+    opticalToggle: document.getElementById("opticalToggle"),
+    dentalWrap: document.getElementById("dentalWrap"),
+    opticalWrap: document.getElementById("opticalWrap"),
+    totalPremium: document.getElementById("totalPremium"),
+    coverCount: document.getElementById("coverCount"),
+    limitInpatient: document.getElementById("limitInpatient"),
+    limitLastExpense: document.getElementById("limitLastExpense"),
+    limitOutpatient: document.getElementById("limitOutpatient"),
+    limitDental: document.getElementById("limitDental"),
+    limitOptical: document.getElementById("limitOptical"),
+    lineOutpatient: document.getElementById("lineOutpatient"),
+    lineDental: document.getElementById("lineDental"),
+    lineOptical: document.getElementById("lineOptical"),
+    premiumInpatient: document.getElementById("premiumInpatient"),
+    premiumOutpatient: document.getElementById("premiumOutpatient"),
+    premiumDental: document.getElementById("premiumDental"),
+    premiumOptical: document.getElementById("premiumOptical"),
+    premiumLastExpense: document.getElementById("premiumLastExpense"),
+    premiumLevy: document.getElementById("premiumLevy"),
+    premiumStamp: document.getElementById("premiumStamp"),
+    premiumOutpatientRow: document.getElementById("premiumOutpatientRow"),
+    premiumDentalRow: document.getElementById("premiumDentalRow"),
+    premiumOpticalRow: document.getElementById("premiumOpticalRow"),
+    coveragePreview: document.getElementById("coveragePreview"),
+    premiumPreview: document.getElementById("premiumPreview"),
+    ipfSummary: document.getElementById("ipfSummary"),
+    ipfBreakdownList: document.getElementById("ipfBreakdownList"),
+    ipfModal: document.getElementById("ipfModal"),
+    viewIpfBreakdown: document.getElementById("viewIpfBreakdown"),
+    closeIpfModal: document.getElementById("closeIpfModal"),
+    closeIpfModalSecondary: document.getElementById("closeIpfModalSecondary"),
+    startIpfApplication: document.getElementById("startIpfApplication"),
+    quoteModal: document.getElementById("quoteModal"),
+    quoteBreakdownList: document.getElementById("quoteBreakdownList"),
+    closeQuoteModal: document.getElementById("closeQuoteModal"),
+    downloadQuoteFile: document.getElementById("downloadQuoteFile"),
+    shareQuote: document.getElementById("shareQuote"),
+    outpatientHint: document.getElementById("outpatientHint"),
+    dentalHint: document.getElementById("dentalHint"),
+    opticalHint: document.getElementById("opticalHint"),
+    downloadQuote: document.getElementById("downloadQuote"),
+    comparePlans: document.getElementById("comparePlans"),
+    startApplication: document.getElementById("startApplication")
+  };
+
+  function money(value) {
+    return "UGX " + Math.round(value).toLocaleString("en-UG");
+  }
+
+  function compactMoney(value, withCurrency) {
+    const rounded = Math.round(value);
+    let output = "";
+
+    if (rounded >= 1000000) {
+      const millions = rounded / 1000000;
+      output = (Number.isInteger(millions) ? millions.toFixed(0) : millions.toFixed(1)) + "M";
+    } else if (rounded >= 1000) {
+      output = Math.round(rounded / 1000) + "K";
+    } else {
+      output = String(rounded);
+    }
+
+    return (withCurrency ? "UGX " : "") + output;
+  }
+
+  function memberCount() {
+    const raw = parseInt(refs.memberCount.value, 10);
+    return Number.isFinite(raw) && raw > 0 ? raw : 1;
+  }
+
+  function currentPlan() {
+    return planData[state.plan];
+  }
+
+  function syncAddons(plan) {
+    refs.outpatientHint.textContent = compactMoney(plan.outpatientLimit) + " cover";
+    refs.dentalHint.textContent = compactMoney(plan.dentalLimit) + " cover";
+    refs.opticalHint.textContent = compactMoney(plan.opticalLimit) + " cover";
+
+    if (!refs.outpatientToggle.checked) {
+      refs.dentalToggle.checked = false;
+      refs.opticalToggle.checked = false;
+      refs.dentalToggle.disabled = true;
+      refs.opticalToggle.disabled = true;
+    } else {
+      refs.dentalToggle.disabled = false;
+      refs.opticalToggle.disabled = false;
+    }
+
+    refs.dentalWrap.classList.toggle("disabled", refs.dentalToggle.disabled);
+    refs.opticalWrap.classList.toggle("disabled", refs.opticalToggle.disabled);
+  }
+
+  function calculate() {
+    const plan = currentPlan();
+    const count = state.planType === "family" ? memberCount() : 1;
+    const inpatient = plan.premiums.inpatient * count;
+    const outpatient = refs.outpatientToggle.checked ? plan.premiums.outpatient * count : 0;
+    const dental = refs.dentalToggle.checked ? plan.premiums.dental * count : 0;
+    const optical = refs.opticalToggle.checked ? plan.premiums.optical * count : 0;
+    const lastExpense = plan.premiums.lastExpense * count;
+    const subtotal = inpatient + outpatient + dental + optical + lastExpense;
+    const levy = subtotal * levyRate;
+    const total = subtotal + levy + stampDuty;
+    return { plan, count, inpatient, outpatient, dental, optical, lastExpense, subtotal, levy, total };
+  }
+
+  function cheapestIpf(total) {
+    return ipfOptions.reduce((best, option) => {
+      const payment = (total * option.repaymentFactor) / option.months;
+      return !best || payment < best.payment ? { months: option.months, payment } : best;
+    }, null);
+  }
+
+  function ipfRows(total) {
+    return ipfOptions.map((option) => {
+      const financedTotal = total * option.repaymentFactor;
+      return {
+        months: option.months,
+        monthly: financedTotal / option.months,
+        financedTotal,
+        extraCost: financedTotal - total
+      };
+    }).sort((a, b) => a.monthly - b.monthly);
+  }
+
+  function renderIpfBreakdown() {
+    const data = calculate();
+    refs.ipfBreakdownList.innerHTML = ipfRows(data.total).map((row) => `
+      <div class="ipf-option-row">
+        <div>
+          <strong>${row.months} monthly installments</strong>
+          <span>Total repayment ${money(row.financedTotal)} - est. IPF cost ${money(row.extraCost)}</span>
+        </div>
+        <b>${money(row.monthly)}/mo</b>
+      </div>
+    `).join("");
+  }
+
+  function openIpfModal() {
+    renderIpfBreakdown();
+    refs.ipfModal.classList.add("open");
+    refs.ipfModal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeIpfModal() {
+    refs.ipfModal.classList.remove("open");
+    refs.ipfModal.setAttribute("aria-hidden", "true");
+  }
+
+  function quoteLine(label, value) {
+    return `<div class="summary-line"><span>${label}</span><strong>${value}</strong></div>`;
+  }
+
+  function renderQuoteBreakdown() {
+    const data = calculate();
+    const coverageRows = [
+      quoteLine("Plan", data.plan.name),
+      quoteLine("Members covered", data.count),
+      quoteLine("Inpatient", money(data.plan.inpatientLimit)),
+      quoteLine("Last expense", money(data.plan.lastExpenseLimit))
+    ];
+    if (refs.outpatientToggle.checked) coverageRows.push(quoteLine("OPD", money(data.plan.outpatientLimit)));
+    if (refs.dentalToggle.checked) coverageRows.push(quoteLine("Dental", money(data.plan.dentalLimit)));
+    if (refs.opticalToggle.checked) coverageRows.push(quoteLine("Optical", money(data.plan.opticalLimit)));
+
+    const premiumRows = [
+      quoteLine("Inpatient premium", money(data.inpatient)),
+      refs.outpatientToggle.checked ? quoteLine("OPD premium", money(data.outpatient)) : "",
+      refs.dentalToggle.checked ? quoteLine("Dental premium", money(data.dental)) : "",
+      refs.opticalToggle.checked ? quoteLine("Optical premium", money(data.optical)) : "",
+      quoteLine("Last expense premium", money(data.lastExpense)),
+      quoteLine("Training levy", money(data.levy)),
+      quoteLine("Stamp duty", money(stampDuty)),
+      quoteLine("Indicative total", money(data.total))
+    ].filter(Boolean);
+
+    const ipfRowsHtml = ipfRows(data.total).map((row) => quoteLine(`${row.months} months`, `${money(row.monthly)}/mo`));
+
+    refs.quoteBreakdownList.innerHTML = `
+      <section class="quote-breakdown-section">
+        <h4>Coverage</h4>
+        <div class="summary-lines">${coverageRows.join("")}</div>
+      </section>
+      <section class="quote-breakdown-section">
+        <h4>Premium breakdown</h4>
+        <div class="summary-lines">${premiumRows.join("")}</div>
+      </section>
+      <section class="quote-breakdown-section">
+        <h4>IPF installment options</h4>
+        <div class="summary-lines">${ipfRowsHtml.join("")}</div>
+      </section>
+    `;
+  }
+
+  function openQuoteModal() {
+    renderQuoteBreakdown();
+    refs.quoteModal.classList.add("open");
+    refs.quoteModal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeQuoteModal() {
+    refs.quoteModal.classList.remove("open");
+    refs.quoteModal.setAttribute("aria-hidden", "true");
+  }
+
+  function updateSummary() {
+    const data = calculate();
+    syncAddons(data.plan);
+
+    refs.totalPremium.childNodes[0].nodeValue = money(data.total);
+    refs.coverCount.textContent = "Covers " + data.count + (data.count === 1 ? " person" : " people");
+
+    refs.limitInpatient.textContent = money(data.plan.inpatientLimit);
+    refs.limitLastExpense.textContent = money(data.plan.lastExpenseLimit);
+    refs.limitOutpatient.textContent = money(data.plan.outpatientLimit);
+    refs.limitDental.textContent = money(data.plan.dentalLimit);
+    refs.limitOptical.textContent = money(data.plan.opticalLimit);
+
+    refs.lineOutpatient.hidden = !refs.outpatientToggle.checked;
+    refs.lineDental.hidden = !refs.dentalToggle.checked;
+    refs.lineOptical.hidden = !refs.opticalToggle.checked;
+
+    const activeCoverage = ["IP", "LE"];
+    if (!refs.lineOutpatient.hidden) activeCoverage.push("OPD");
+    if (!refs.lineDental.hidden) activeCoverage.push("Dental");
+    if (!refs.lineOptical.hidden) activeCoverage.push("Optical");
+    refs.coveragePreview.textContent = compactMoney(data.plan.inpatientLimit) + " IP | " + activeCoverage.join(", ");
+
+    refs.premiumInpatient.textContent = money(data.inpatient);
+    refs.premiumOutpatient.textContent = money(data.outpatient);
+    refs.premiumDental.textContent = money(data.dental);
+    refs.premiumOptical.textContent = money(data.optical);
+    refs.premiumLastExpense.textContent = money(data.lastExpense);
+    refs.premiumLevy.textContent = money(data.levy);
+    refs.premiumStamp.textContent = money(stampDuty);
+
+    refs.premiumOutpatientRow.hidden = !refs.outpatientToggle.checked;
+    refs.premiumDentalRow.hidden = !refs.dentalToggle.checked;
+    refs.premiumOpticalRow.hidden = !refs.opticalToggle.checked;
+    refs.premiumPreview.textContent = compactMoney(data.subtotal, true) + " + fees";
+
+    const ipf = cheapestIpf(data.total);
+    refs.ipfSummary.textContent = "From " + compactMoney(ipf.payment, true) + "/mo for " + ipf.months + " months. See the full schedule before you apply.";
+    renderIpfBreakdown();
+  }
+
+  function setPlan(planKey) {
+    state.plan = planKey;
+    refs.planButtons.forEach((button) => {
+      button.classList.toggle("active", button.getAttribute("data-plan") === planKey);
+    });
+    updateSummary();
+  }
+
+  function setPlanType(planType) {
+    state.planType = planType;
+    refs.planTypeButtons.forEach((button) => {
+      button.classList.toggle("active", button.getAttribute("data-plan-type") === planType);
+    });
+    refs.memberRow.style.display = planType === "family" ? "flex" : "none";
+    if (planType !== "family") {
+      refs.memberCount.value = 1;
+    }
+    updateSummary();
+  }
+
+  function quoteText() {
+    const data = calculate();
+    const benefits = ["Inpatient", "Last expense"];
+    if (refs.outpatientToggle.checked) benefits.push("Outpatient");
+    if (refs.dentalToggle.checked) benefits.push("Dental");
+    if (refs.opticalToggle.checked) benefits.push("Optical");
+
+    const ipfRows = ipfOptions.map((option) => {
+      const payment = (data.total * option.repaymentFactor) / option.months;
+      return option.months + " months: " + money(payment) + "/mo";
+    });
+
+    return [
+      "J-Junior Health Insurance Quote",
+      "",
+      "Plan: " + data.plan.name,
+      "Members: " + data.count,
+      "Benefits: " + benefits.join(", "),
+      "",
+      "Coverage limits",
+      "Inpatient: " + money(data.plan.inpatientLimit),
+      refs.outpatientToggle.checked ? "Outpatient: " + money(data.plan.outpatientLimit) : null,
+      refs.dentalToggle.checked ? "Dental: " + money(data.plan.dentalLimit) : null,
+      refs.opticalToggle.checked ? "Optical: " + money(data.plan.opticalLimit) : null,
+      "Last expense: " + money(data.plan.lastExpenseLimit),
+      "",
+      "Premium breakdown",
+      "Inpatient premium: " + money(data.inpatient),
+      refs.outpatientToggle.checked ? "Outpatient premium: " + money(data.outpatient) : null,
+      refs.dentalToggle.checked ? "Dental premium: " + money(data.dental) : null,
+      refs.opticalToggle.checked ? "Optical premium: " + money(data.optical) : null,
+      "Last expense premium: " + money(data.lastExpense),
+      "Training levy: " + money(data.levy),
+      "Stamp duty: " + money(stampDuty),
+      "Indicative total: " + money(data.total),
+      "",
+      "IPF options",
+      ...ipfRows
+    ].filter(Boolean).join("\n");
+  }
+
+  function downloadQuote() {
+    const text = quoteText();
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "J-Junior-Quote-" + currentPlan().name + ".txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  async function shareQuote() {
+    const text = quoteText();
+    if (navigator.share) {
+      await navigator.share({
+        title: "J-Junior Health Insurance Quote",
+        text
+      });
+      return;
+    }
+
+    await navigator.clipboard.writeText(text);
+    refs.shareQuote.textContent = "Copied";
+    window.setTimeout(() => {
+      refs.shareQuote.textContent = "Share Quote";
+    }, 1600);
+  }
+
+  function openComparePlans() {
+    const data = calculate();
+    localStorage.setItem("nxtpeCompareSelection", JSON.stringify({
+      ids: [1, 2, 3],
+      quote: {
+        cover: state.planType === "family" ? "family" : "child",
+        age: 8,
+        tier: data.plan.name.toLowerCase() === "classic" ? "standard" : "premium",
+        budget: Math.max(70000, Math.ceil(data.total / 1000) * 1000),
+        benefits: [
+          refs.outpatientToggle.checked ? "opd" : null,
+          refs.dentalToggle.checked ? "dental" : null,
+          refs.opticalToggle.checked ? "optical" : null
+        ].filter(Boolean),
+        sort: "cover"
+      },
+      selections: { category: "health", sub: state.planType === "family" ? "family" : "child", priority: "cover" },
+      savedAt: new Date().toISOString()
+    }));
+    window.location.href = "compare.html?ids=1,2,3";
+  }
+
+  refs.planButtons.forEach((button) => {
+    button.addEventListener("click", () => setPlan(button.getAttribute("data-plan")));
+  });
+
+  refs.planTypeButtons.forEach((button) => {
+    button.addEventListener("click", () => setPlanType(button.getAttribute("data-plan-type")));
+  });
+
+  [refs.outpatientToggle, refs.dentalToggle, refs.opticalToggle].forEach((toggle) => {
+    toggle.addEventListener("change", updateSummary);
+  });
+
+  document.getElementById("decreaseMembers").addEventListener("click", () => {
+    refs.memberCount.value = Math.max(1, memberCount() - 1);
+    updateSummary();
+  });
+
+  document.getElementById("increaseMembers").addEventListener("click", () => {
+    refs.memberCount.value = memberCount() + 1;
+    updateSummary();
+  });
+
+  refs.memberCount.addEventListener("input", updateSummary);
+  refs.memberCount.addEventListener("change", updateSummary);
+  refs.downloadQuote.addEventListener("click", openQuoteModal);
+  refs.comparePlans.addEventListener("click", openComparePlans);
+  refs.closeQuoteModal.addEventListener("click", closeQuoteModal);
+  refs.downloadQuoteFile.addEventListener("click", downloadQuote);
+  refs.shareQuote.addEventListener("click", () => {
+    shareQuote().catch(() => {
+      refs.shareQuote.textContent = "Copy failed";
+      window.setTimeout(() => {
+        refs.shareQuote.textContent = "Share Quote";
+      }, 1600);
+    });
+  });
+  refs.viewIpfBreakdown.addEventListener("click", openIpfModal);
+  refs.closeIpfModal.addEventListener("click", closeIpfModal);
+  refs.closeIpfModalSecondary.addEventListener("click", closeIpfModal);
+  refs.ipfModal.addEventListener("click", (event) => {
+    if (event.target === refs.ipfModal) closeIpfModal();
+  });
+  refs.quoteModal.addEventListener("click", (event) => {
+    if (event.target === refs.quoteModal) closeQuoteModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeIpfModal();
+      closeQuoteModal();
+    }
+  });
+  refs.startIpfApplication.addEventListener("click", () => {
+    closeIpfModal();
+    document.getElementById("before").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  refs.startApplication.addEventListener("click", () => {
+    document.getElementById("before").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.querySelectorAll(".faq-q").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = button.parentElement;
+      const isOpen = item.classList.contains("open");
+      document.querySelectorAll(".faq-item.open").forEach((openItem) => openItem.classList.remove("open"));
+      if (!isOpen) item.classList.add("open");
+    });
+  });
+
+  setPlan("classic");
+</script>
+</body>
+</html>

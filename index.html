@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NxtPe Insure - Guided Insurance Discovery</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #000000;
+    --accent: #E31C23;
+    --bg: #ffffff;
+    --bg-alt: #f9fafb;
+    --ink: #1a1a1b;
+    --ink-light: #6b7280;
+    --border: #e5e7eb;
+    --radius: 16px;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--ink); background: var(--bg); line-height: 1.5; overflow-x: hidden; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* Navigation */
+  nav { height: 72px; display: flex; align-items: center; justify-content: space-between; background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .logo span { color: var(--accent); }
+
+  /* Conversational Hero */
+  .hero {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    background-color: #ffffff;
+    position: relative;
+    text-align: center;
+  }
+
+  /* Assets Placement */
+  .hero-asset { position: absolute; z-index: 1; pointer-events: none; filter: drop-shadow(0 24px 48px rgba(0,0,0,0.08)); }
+  .asset-left { left: 1%; bottom: 37%; width: min(31vw, 420px); }
+  .asset-right { right: 2%; bottom: 38%; width: min(24vw, 320px); }
+  .hero-asset img { width: 100%; height: auto; object-fit: contain; display: block; }
+
+  .hero-arc {
+    position: absolute;
+    bottom: -25%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 190%;
+    height: 80%;
+    background: white;
+    border-radius: 100% 100% 0 0;
+    z-index: 2;
+    box-shadow: 0 -15px 50px rgba(0,0,0,0.03);
+    transition: transform 0.6s ease;
+  }
+
+  .guide-container {
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Progress Bar */
+  .progress-wrap { width: 120px; height: 4px; background: #eee; margin: 0 auto 32px; border-radius: 10px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 33.33%; background: var(--accent); transition: width 0.4s ease; }
+
+  .step { display: none; animation: fadeIn 0.5s ease forwards; }
+  .step.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 12px; line-height: 1.1; }
+  h1 em { font-family: var(--font-serif); font-weight: 400; font-style: italic; }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 400;
+    max-width: 440px;
+    margin: 0 auto 32px;
+    opacity: 0.5;
+    line-height: 1.6;
+  }
+
+  .ai-search {
+    width: min(680px, calc(100% - 32px));
+    margin: -6px auto 16px;
+    padding: 7px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(229, 231, 235, 0.95);
+    border-radius: 999px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.08);
+    backdrop-filter: blur(18px);
+  }
+  .ai-search input {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 600 14px var(--font-sans);
+  }
+  .ai-search input::placeholder { color: rgba(26,26,27,0.42); font-weight: 500; }
+  .mic-btn,
+  .ai-submit {
+    border: 0;
+    cursor: pointer;
+    font: 700 13px var(--font-sans);
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .mic-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff1f2;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10px;
+  }
+  .mic-btn.listening { background: var(--accent); color: white; animation: pulseMic 1s ease-in-out infinite; }
+  .ai-submit {
+    min-height: 42px;
+    padding: 0 20px;
+    border-radius: 999px;
+    background: var(--primary);
+    color: white;
+  }
+  .mic-btn:hover,
+  .ai-submit:hover { transform: translateY(-1px); }
+  .ai-suggestions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .ai-chip {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.72);
+    color: var(--ink-light);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font: 700 11px var(--font-sans);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ai-chip:hover { border-color: var(--accent); color: var(--accent); background: #fffafa; }
+  .ai-hint {
+    min-height: 20px;
+    margin: -10px auto 18px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  @keyframes pulseMic {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(227,28,35,0.26); }
+    50% { box-shadow: 0 0 0 10px rgba(227,28,35,0); }
+  }
+
+  /* Option Buttons */
+  .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .option-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    padding: 20px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .option-card:hover { border-color: var(--accent); background: #fffafa; transform: translateY(-2px); }
+  .option-icon {
+    min-width: 52px;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #fff1f2;
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Listing Page View */
+  #listing-view { display: none; padding: 60px 0 140px; background: var(--bg-alt); min-height: 100vh; }
+  .listing-header { margin-bottom: 34px; }
+  .filters-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+  .chip { padding: 8px 16px; background: white; border: 1px solid var(--border); border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--ink-light); }
+  .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .listing-shell { display: grid; grid-template-columns: 292px 1fr; gap: 28px; align-items: start; }
+  .listing-sidebar { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 14px; }
+  .panel {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.03);
+  }
+  .panel-eyebrow { display: block; margin-bottom: 8px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+  .panel h3 { margin-bottom: 14px; font-size: 20px; line-height: 1.15; letter-spacing: -0.03em; }
+  .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 13px; }
+  .field span,
+  .filter-title { color: var(--ink); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  .field input,
+  .field select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    padding: 12px;
+    color: var(--ink);
+    font: 700 14px var(--font-sans);
+    outline: 0;
+  }
+  .field input:focus,
+  .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(227,28,35,0.08); }
+  .range-row { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  input[type="range"] { accent-color: var(--accent); }
+  .filter-stack { display: flex; flex-direction: column; gap: 12px; }
+  .filter-check { display: flex; align-items: center; gap: 10px; color: var(--ink-light); font-size: 14px; font-weight: 650; cursor: pointer; }
+  .filter-check input { width: 16px; height: 16px; accent-color: var(--primary); }
+  .listing-main { min-width: 0; }
+  .products-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .products-toolbar strong { color: var(--ink); }
+  .products-toolbar span { color: var(--ink-light); font-size: 13px; font-weight: 650; }
+  .products-toolbar select { border: 0; background: transparent; color: var(--accent); font: 800 13px var(--font-sans); outline: 0; }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 24px; }
+  .product-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; transition: 0.2s; }
+  .product-card:hover,
+  .product-card.is-selected { border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .product-badge { align-self: flex-start; padding: 4px 10px; background: #fef2f2; color: var(--accent); font-size: 11px; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
+  .product-insurer { font-size: 12px; font-weight: 700; color: var(--ink-light); }
+  .product-title { font-size: 18px; font-weight: 700; }
+  .product-features { list-style: none; font-size: 14px; color: var(--ink-light); }
+  .product-features li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .product-features li::before { content: 'ok'; color: var(--accent); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+  .compare-check { display: flex; align-items: center; gap: 8px; color: var(--ink-light); font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
+  .compare-check input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+  .product-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .price { font-size: 20px; font-weight: 800; }
+  .price small { font-size: 12px; font-weight: 500; color: var(--ink-light); }
+  .compare-tray {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(130%);
+    width: min(760px, calc(100% - 32px));
+    background: var(--primary);
+    color: white;
+    border-radius: 20px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    box-shadow: 0 26px 80px rgba(0,0,0,0.22);
+    z-index: 200;
+    transition: transform 0.28s ease;
+  }
+  .compare-tray.visible { transform: translateX(-50%) translateY(0); }
+  .compare-tray-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .tray-bubbles { display: flex; gap: 8px; }
+  .tray-bubble { width: 38px; height: 38px; border-radius: 12px; background: var(--accent); display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+  .tray-info { display: flex; flex-direction: column; min-width: 0; }
+  .tray-info b { font-size: 14px; }
+  .tray-info small { color: rgba(255,255,255,0.62); font-size: 12px; }
+  .tray-actions { display: flex; align-items: center; gap: 10px; }
+  .btn-white { background: white; color: var(--primary); }
+  .btn-clear { background: transparent; color: rgba(255,255,255,0.72); }
+
+  .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; font-size: 14px; }
+  .btn-dark { background: var(--primary); color: white; }
+  .btn-ghost { background: transparent; color: var(--ink-light); }
+
+  @media (max-width: 850px) {
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-asset { display: none; }
+    .ai-search { border-radius: 22px; align-items: stretch; }
+    .ai-submit { padding: 0 14px; }
+    .listing-shell { grid-template-columns: 1fr; }
+    .listing-sidebar { position: static; }
+    .products-toolbar { align-items: flex-start; flex-direction: column; }
+    .compare-tray { align-items: stretch; flex-direction: column; text-align: left; }
+    .tray-actions { width: 100%; }
+    .tray-actions .btn { flex: 1; }
+  }
+
+  @media (max-width: 560px) {
+    .ai-search { width: 100%; flex-wrap: wrap; border-radius: 20px; }
+    .ai-search input { flex-basis: calc(100% - 58px); height: 42px; }
+    .ai-submit { width: 100%; }
+    .products-grid { grid-template-columns: 1fr; }
+    .product-footer { align-items: stretch; flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="container">
+  <div class="logo" onclick="location.reload()">Nxt<span>Pe</span> Insure</div>
+  <a href="#" class="btn btn-dark">Login</a>
+</nav>
+
+<main>
+  <!-- GUIDED DISCOVERY SECTION -->
+  <section class="hero" id="discovery-section">
+    <div class="hero-asset asset-left">
+      <img src="assets/1.png" alt="Family protected by insurance">
+    </div>
+    <div class="hero-asset asset-right">
+      <img src="assets/3.png" alt="Car insurance illustration">
+    </div>
+    <div class="hero-arc" id="hero-arc"></div>
+
+    <div class="guide-container">
+      <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+
+      <!-- STEP 1 -->
+      <div class="step active" id="step-1">
+        <h1>What would you like to <em>protect?</em></h1>
+        <p class="hero-sub">Choose a category to discover regulated products built for Ugandan life.</p>
+        <div class="ai-search" role="search" aria-label="Conversational insurance search">
+          <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">mic</button>
+          <input id="ai-search-input" type="text" placeholder="Tell us: I need health cover for my child">
+          <button class="ai-submit" id="ai-submit" type="button">Guide me</button>
+        </div>
+        <div class="ai-suggestions" aria-label="Example searches">
+          <button class="ai-chip" type="button" data-query="I need health cover for my child">Child health cover</button>
+          <button class="ai-chip" type="button" data-query="I want cheap motor insurance">Cheap motor cover</button>
+          <button class="ai-chip" type="button" data-query="Protect my phone screen">Phone protection</button>
+        </div>
+        <p class="ai-hint" id="ai-hint"></p>
+        <div class="options-grid">
+          <div class="option-card" onclick="nextStep(1, 'life')"><div class="option-icon">Life</div><span>Life Cover</span></div>
+          <div class="option-card" onclick="nextStep(1, 'health')"><div class="option-icon">Health</div><span>Health & Medical</span></div>
+          <div class="option-card" onclick="nextStep(1, 'device')"><div class="option-icon">Phone</div><span>Device Protect</span></div>
+          <div class="option-card" onclick="nextStep(1, 'motor')"><div class="option-icon">Motor</div><span>Motor & Vehicle</span></div>
+          <div class="option-card" onclick="nextStep(1, 'agri')"><div class="option-icon">Farm</div><span>Agriculture</span></div>
+          <div class="option-card" onclick="nextStep(1, 'travel')"><div class="option-icon">Trip</div><span>Travel Cover</span></div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step-2">
+        <h1 id="step-2-title">Dynamic Title</h1>
+        <p class="hero-sub" id="step-2-sub">Subtext</p>
+        <div class="options-grid" id="step-2-options"></div>
+        <div style="margin-top: 24px;"><button class="btn btn-ghost" onclick="prevStep(2)">Back</button></div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step-3">
+        <h1>What's most <em>important?</em></h1>
+        <p class="hero-sub">We'll rank 40+ products based on your specific priority.</p>
+        <div class="options-grid">
+          <div class="option-card" onclick="finish('price')"><div class="option-icon">Price</div><span>Lowest Price</span></div>
+          <div class="option-card" onclick="finish('cover')"><div class="option-icon">Cover</div><span>Maximum Coverage</span></div>
+          <div class="option-card" onclick="finish('claims')"><div class="option-icon">Claim</div><span>Fastest Claims</span></div>
+        </div>
+        <div style="margin-top: 24px;"><button class="btn btn-ghost" onclick="prevStep(3)">Back</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTING VIEW (Initially Hidden) -->
+  <section id="listing-view">
+    <div class="container">
+      <div class="listing-header">
+        <span style="font-weight: 700; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 12px;">Your Results</span>
+        <h2 id="listing-title" style="font-family: var(--font-serif); font-size: 40px; margin-bottom: 24px;">Recommended for you</h2>
+        <div class="filters-row" id="chips-container"></div>
+      </div>
+
+      <div class="listing-shell">
+        <aside class="listing-sidebar" aria-label="Quote calculator and filters">
+          <div class="panel">
+            <span class="panel-eyebrow">Editable calculator</span>
+            <h3>Refine your quote</h3>
+            <label class="field">
+              <span>Cover for</span>
+              <select id="calc-cover">
+                <option value="child">My child</option>
+                <option value="self">Just myself</option>
+                <option value="family">My family</option>
+                <option value="parents">My parents</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Age</span>
+              <input id="calc-age" type="number" min="1" max="80" value="8">
+            </label>
+            <label class="field">
+              <span>Plan type</span>
+              <select id="calc-tier">
+                <option value="lite">Lite</option>
+                <option value="standard" selected>Standard</option>
+                <option value="premium">Premium</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Monthly budget</span>
+              <input id="calc-budget" type="range" min="5000" max="70000" step="1000" value="45000">
+              <div class="range-row">
+                <small>UGX 5k</small>
+                <strong id="budget-label">UGX 45,000</strong>
+              </div>
+            </label>
+          </div>
+
+          <div class="panel">
+            <span class="panel-eyebrow">Filters</span>
+            <div class="filter-stack">
+              <div>
+                <div class="filter-title">Benefits</div>
+                <label class="filter-check"><input class="filter-input" type="checkbox" value="opd" checked> OPD included</label>
+                <label class="filter-check"><input class="filter-input" type="checkbox" value="dental"> Dental</label>
+                <label class="filter-check"><input class="filter-input" type="checkbox" value="optical"> Optical</label>
+              </div>
+              <div>
+                <div class="filter-title">Insurer</div>
+                <label class="filter-check"><input class="insurer-input" type="checkbox" value="Jubilee Health" checked> Jubilee Health</label>
+                <label class="filter-check"><input class="insurer-input" type="checkbox" value="Liberty" checked> Liberty</label>
+                <label class="filter-check"><input class="insurer-input" type="checkbox" value="Sanlam" checked> Sanlam</label>
+                <label class="filter-check"><input class="insurer-input" type="checkbox" value="UAP Old Mutual" checked> UAP Old Mutual</label>
+              </div>
+              <label class="filter-check"><input id="filter-ipf" type="checkbox"> Pay monthly/IPF available</label>
+            </div>
+          </div>
+        </aside>
+
+        <div class="listing-main">
+          <div class="products-toolbar">
+            <span>Showing <strong id="result-count">0</strong> plans with live premium estimates</span>
+            <label>
+              <span style="font-size:11px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-light);">Sort by</span>
+              <select id="sort-select">
+                <option value="price">Lowest premium</option>
+                <option value="cover">Highest cover</option>
+                <option value="claims">Fastest claims</option>
+              </select>
+            </label>
+          </div>
+          <div class="products-grid" id="products-container">
+            <!-- Products injected by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="compare-tray" class="compare-tray" aria-live="polite">
+  <div class="compare-tray-left">
+    <div class="tray-bubbles" id="tray-bubbles"></div>
+    <div class="tray-info">
+      <b id="tray-count">0 plans selected</b>
+      <small>Compare premium, cover, benefits and claims side by side.</small>
+    </div>
+  </div>
+  <div class="tray-actions">
+    <button class="btn btn-clear" id="clear-compare" type="button">Clear</button>
+    <button class="btn btn-white" id="compare-now" type="button">Compare now</button>
+  </div>
+</div>
+
+<footer id="main-footer">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--ink-light);">
+      <p>2026 NxtPe Technologies x Airtel Money Africa</p>
+      <div style="display: flex; gap: 24px;">
+        <a href="#" style="text-decoration:none; color:inherit">Terms</a>
+        <a href="#" style="text-decoration:none; color:inherit">Privacy</a>
+        <a href="#" style="text-decoration:none; color:inherit">IRA Licensed</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  let selections = { category: '', sub: '', priority: '' };
+
+  const step2Config = {
+    life: { title: "Protecting your <em>legacy.</em> What's the goal?", sub: "Funeral cover, term life or family benefit.", options: [{id:'term', label:'Long-term Life', icon:'🕊️'}, {id:'funeral', label:'Funeral Cover', icon:'⚱️'}, {id:'family', label:'Family Benefit', icon:'👨‍👩'}] },
+    health: { title: "Staying <em>healthy.</em> Who is this for?", sub: "Hospital cash and OPD cover for everyone.", options: [{id:'self', label:'Just Myself', icon:'👤'}, {id:'family', label:'My Family', icon:'👨‍👩‍👧‍👦'}, {id:'parents', label:'My Parents', icon:'👵'}] },
+    device: { title: "Secure your <em>tech.</em> What device?", sub: "Protection for the tools you use every day.", options: [{id:'phone', label:'Smartphone', icon:'📱'}, {id:'laptop', label:'Laptop', icon:'💻'}, {id:'tablet', label:'Tablet', icon:'📟'}] },
+    motor: { title: "Hit the <em>road.</em> What are you driving?", sub: "Mandatory third party or comprehensive.", options: [{id:'car', label:'Private Car', icon:'🚗'}, {id:'boda', label:'Boda Boda', icon:'🏍️'}, {id:'truck', label:'Commercial', icon:'🚛'}] },
+    agri: { title: "Protect your <em>yield.</em> What's the focus?", sub: "Crop and weather-index cover for farmers.", options: [{id:'crops', label:'My Crops', icon:'🌱'}, {id:'livestock', label:'Livestock', icon:'🐄'}] },
+    travel: { title: "Plan your <em>journey.</em> Where to?", sub: "Business or leisure, we have you covered.", options: [{id:'domestic', label:'Within Uganda', icon:'🇺🇬'}, {id:'intl', label:'International', icon:'🌍'}] }
+  };
+
+  const cleanStep2Config = {
+    life: { title: "Protecting your <em>legacy.</em> What's the goal?", sub: "Funeral cover, term life or family benefit.", options: [{id:'term', label:'Long-term Life', icon:'Term'}, {id:'funeral', label:'Funeral Cover', icon:'Rites'}, {id:'family', label:'Family Benefit', icon:'Family'}] },
+    health: { title: "Staying <em>healthy.</em> Who is this for?", sub: "Hospital cash, J-Junior, OPD and family cover.", options: [{id:'child', label:'My Child', icon:'Child'}, {id:'self', label:'Just Myself', icon:'Self'}, {id:'family', label:'My Family', icon:'Family'}, {id:'parents', label:'My Parents', icon:'Parents'}] },
+    device: { title: "Secure your <em>tech.</em> What device?", sub: "Protection for the tools you use every day.", options: [{id:'phone', label:'Smartphone', icon:'Phone'}, {id:'laptop', label:'Laptop', icon:'Laptop'}, {id:'tablet', label:'Tablet', icon:'Tablet'}] },
+    motor: { title: "Hit the <em>road.</em> What are you driving?", sub: "Mandatory third party or comprehensive.", options: [{id:'car', label:'Private Car', icon:'Car'}, {id:'boda', label:'Boda Boda', icon:'Boda'}, {id:'truck', label:'Commercial', icon:'Truck'}] },
+    agri: { title: "Protect your <em>yield.</em> What's the focus?", sub: "Crop and weather-index cover for farmers.", options: [{id:'crops', label:'My Crops', icon:'Crop'}, {id:'livestock', label:'Livestock', icon:'Stock'}] },
+    travel: { title: "Plan your <em>journey.</em> Where to?", sub: "Business or leisure, we have you covered.", options: [{id:'domestic', label:'Within Uganda', icon:'Local'}, {id:'intl', label:'International', icon:'Global'}] }
+  };
+
+  const mockProducts = [
+    { id: 1, cat: 'health', title: 'Jubilee J-Care Junior', insurer: 'Jubilee Health', price: '12,000', badge: 'Child Cover', tags: ['opd', 'dental', 'optical'], coverScore: 92, claimsScore: 82, ipf: true, features: ['OPD, dental and optical options', 'Built for children', 'Online quote in minutes'] },
+    { id: 2, cat: 'health', title: 'Liberty Health Lite', insurer: 'Liberty', price: '28,000', badge: 'Popular', tags: ['opd'], coverScore: 84, claimsScore: 78, ipf: true, features: ['UGX 5M Inpatient', '300+ Hospitals', 'No waiting period'] },
+    { id: 3, cat: 'health', title: 'Sanlam Hospital Cash', insurer: 'Sanlam', price: '8,500', badge: 'Best Value', tags: ['opd'], coverScore: 72, claimsScore: 94, ipf: true, features: ['UGX 100k daily cash', 'Covers accident & illness', 'Paid in 48 hours'] },
+    { id: 4, cat: 'health', title: 'UAP Family Shield', insurer: 'UAP Old Mutual', price: '45,000', badge: 'Premium', tags: ['opd', 'dental', 'optical'], coverScore: 96, claimsScore: 76, ipf: false, features: ['Full Family Cover', 'Optical & Dental', 'Global coverage'] },
+    { id: 5, cat: 'motor', title: 'Britam Third Party', insurer: 'Britam', price: '42,500', badge: 'Mandatory', tags: [], coverScore: 76, claimsScore: 84, ipf: true, features: ['Legal Liability', 'Property Damage', 'Instant Sticker'] },
+    { id: 6, cat: 'device', title: 'ICEA Screen Protect', insurer: 'ICEA Lion', price: '3,200', badge: 'New', tags: [], coverScore: 70, claimsScore: 88, ipf: false, features: ['All-risk screen cover', 'Free pickup/delivery', '3-day repair turnaround'] }
+  ];
+  let selectedCompareIds = [];
+
+  function resetDiscoverySteps() {
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+    document.getElementById('progress').style.width = '33.33%';
+    selections = { category: '', sub: '', priority: '' };
+  }
+
+  function inferIntent(query) {
+    const text = query.toLowerCase();
+    const category =
+      /(life|funeral|legacy|death|family benefit)/.test(text) ? 'life' :
+      /(health|medical|hospital|doctor|clinic|child|junior|baby|family|parent|opd|dental|optical)/.test(text) ? 'health' :
+      /(car|boda|bike|vehicle|motor|truck|drive|road)/.test(text) ? 'motor' :
+      /(phone|screen|laptop|tablet|device|gadget)/.test(text) ? 'device' :
+      /(farm|crop|agri|livestock|weather|yield)/.test(text) ? 'agri' :
+      /(travel|trip|flight|journey|abroad)/.test(text) ? 'travel' : '';
+
+    const sub =
+      /(child|junior|baby|kid|school)/.test(text) ? 'child' :
+      /(parent|mother|father|elder)/.test(text) ? 'parents' :
+      /(family|wife|husband|children)/.test(text) ? 'family' :
+      /(boda|bike|motorcycle)/.test(text) ? 'boda' :
+      /(truck|commercial|business vehicle)/.test(text) ? 'truck' :
+      /(car|vehicle)/.test(text) ? 'car' :
+      /(phone|screen)/.test(text) ? 'phone' :
+      /(laptop)/.test(text) ? 'laptop' :
+      /(tablet)/.test(text) ? 'tablet' :
+      /(crop|crops)/.test(text) ? 'crops' :
+      /(livestock|cow|cattle)/.test(text) ? 'livestock' :
+      /(international|abroad|outside)/.test(text) ? 'intl' :
+      /(uganda|local|domestic)/.test(text) ? 'domestic' : '';
+
+    const priority =
+      /(cheap|affordable|lowest|budget|price)/.test(text) ? 'price' :
+      /(best cover|maximum|comprehensive|coverage|protect everything)/.test(text) ? 'cover' :
+      /(claim|fast|quick|payout|settlement)/.test(text) ? 'claims' : '';
+
+    return { category, sub, priority };
+  }
+
+  function guideFromSearch(query) {
+    const input = document.getElementById('ai-search-input');
+    const hint = document.getElementById('ai-hint');
+    const value = (query || input.value || '').trim();
+
+    if (!value) {
+      hint.innerText = 'Try: health cover for my child, cheap motor insurance, or protect my phone.';
+      input.focus();
+      return;
+    }
+
+    let intent = inferIntent(value);
+    if (!intent.category) {
+      hint.innerText = 'I can guide health, motor, device, life, agriculture, or travel cover. Try one of those.';
+      return;
+    }
+    if (intent.sub && !cleanStep2Config[intent.category].options.some(option => option.id === intent.sub)) {
+      intent = { ...intent, sub: '' };
+    }
+
+    resetDiscoverySteps();
+
+    if (intent.sub && intent.priority) {
+      selections.category = intent.category;
+      selections.sub = intent.sub;
+      finish(intent.priority);
+      return;
+    }
+
+    nextStep(1, intent.category);
+
+    if (intent.sub) {
+      nextStep(2, intent.sub);
+      hint.innerText = 'Good match. Pick what matters most and I will rank the plans.';
+      return;
+    }
+
+    hint.innerText = intent.priority
+      ? `I found ${intent.category} cover. Choose one detail first, then we will rank by ${intent.priority}.`
+      : `I found ${intent.category} cover. Choose one detail and I will narrow it down.`;
+  }
+
+  function nextStep(stepNum, val) {
+    if (stepNum === 1) {
+      selections.category = val;
+      const cfg = cleanStep2Config[val];
+      document.getElementById('step-2-title').innerHTML = cfg.title;
+      document.getElementById('step-2-sub').innerText = cfg.sub;
+      document.getElementById('step-2-options').innerHTML = cfg.options.map(o => `<div class="option-card" onclick="nextStep(2, '${o.id}')"><div class="option-icon">${o.icon}</div><span>${o.label}</span></div>`).join('');
+    } else {
+      selections.sub = val;
+    }
+    document.getElementById(`step-${stepNum}`).classList.remove('active');
+    document.getElementById(`step-${stepNum + 1}`).classList.add('active');
+    document.getElementById('progress').style.width = ((stepNum + 1) * 33.33) + '%';
+  }
+
+  function prevStep(stepNum) {
+    document.getElementById(`step-${stepNum}`).classList.remove('active');
+    document.getElementById(`step-${stepNum - 1}`).classList.add('active');
+    document.getElementById('progress').style.width = ((stepNum - 1) * 33.33) + '%';
+  }
+
+  function formatUGX(value) {
+    return `UGX ${Math.round(value).toLocaleString('en-US')}`;
+  }
+
+  function parseUGX(value) {
+    return Number(String(value).replace(/,/g, '')) || 0;
+  }
+
+  function getQuoteState() {
+    const selectedBenefits = [...document.querySelectorAll('.filter-input:checked')].map(input => input.value);
+    const selectedInsurers = [...document.querySelectorAll('.insurer-input:checked')].map(input => input.value);
+    return {
+      cover: document.getElementById('calc-cover').value,
+      age: Number(document.getElementById('calc-age').value) || 1,
+      tier: document.getElementById('calc-tier').value,
+      budget: Number(document.getElementById('calc-budget').value) || 70000,
+      benefits: selectedBenefits,
+      insurers: selectedInsurers,
+      ipfOnly: document.getElementById('filter-ipf').checked,
+      sort: document.getElementById('sort-select').value
+    };
+  }
+
+  function calculatePremium(product, quote) {
+    const tierFactor = { lite: 0.86, standard: 1, premium: 1.28 }[quote.tier] || 1;
+    const coverFactor = { child: 0.92, self: 1, family: 1.42, parents: 1.58 }[quote.cover] || 1;
+    const ageFactor = quote.age > 55 ? 1.24 : quote.age > 35 ? 1.1 : quote.age < 12 ? 0.96 : 1;
+    const benefitAddOn = quote.benefits.reduce((sum, benefit) => sum + ({ opd: 0, dental: 3000, optical: 2500 }[benefit] || 0), 0);
+    return Math.max(2500, (parseUGX(product.price) * tierFactor * coverFactor * ageFactor) + benefitAddOn);
+  }
+
+  function syncCalculatorFromSelection() {
+    const coverSelect = document.getElementById('calc-cover');
+    const sortSelect = document.getElementById('sort-select');
+    if (['child', 'self', 'family', 'parents'].includes(selections.sub)) coverSelect.value = selections.sub;
+    if (['price', 'cover', 'claims'].includes(selections.priority)) sortSelect.value = selections.priority;
+  }
+
+  function renderProducts() {
+    const quote = getQuoteState();
+    document.getElementById('budget-label').innerText = formatUGX(quote.budget);
+
+    let displayList = mockProducts
+      .filter(product => product.cat === selections.category || selections.category === '')
+      .filter(product => selections.category !== 'health' || quote.insurers.includes(product.insurer))
+      .filter(product => selections.category !== 'health' || quote.benefits.every(benefit => product.tags.includes(benefit)))
+      .filter(product => !quote.ipfOnly || product.ipf)
+      .map(product => ({ ...product, calculatedPremium: calculatePremium(product, quote) }))
+      .filter(product => product.calculatedPremium <= quote.budget);
+
+    if (quote.sort === 'price') displayList.sort((a, b) => a.calculatedPremium - b.calculatedPremium);
+    if (quote.sort === 'cover') displayList.sort((a, b) => b.coverScore - a.coverScore);
+    if (quote.sort === 'claims') displayList.sort((a, b) => b.claimsScore - a.claimsScore);
+
+    document.getElementById('result-count').innerText = displayList.length;
+
+    if (!displayList.length) {
+      document.getElementById('products-container').innerHTML = `
+        <article class="product-card">
+          <span class="product-badge">No match</span>
+          <h3 class="product-title">Try widening the calculator</h3>
+          <p style="color:var(--ink-light); font-size:14px;">Increase your budget or remove one benefit filter to see more plans.</p>
+        </article>
+      `;
+      updateCompareTray();
+      return;
+    }
+
+    document.getElementById('products-container').innerHTML = displayList.map(product => `
+      <article class="product-card ${selectedCompareIds.includes(product.id) ? 'is-selected' : ''}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px">
+          <span class="product-insurer">${product.insurer}</span>
+          <span class="product-badge">${product.badge}</span>
+        </div>
+        <h3 class="product-title">${product.title}</h3>
+        <ul class="product-features">
+          ${product.features.map(feature => `<li>${feature}</li>`).join('')}
+        </ul>
+        <label class="compare-check">
+          <input type="checkbox" class="compare-input" data-id="${product.id}" ${selectedCompareIds.includes(product.id) ? 'checked' : ''}>
+          Compare
+        </label>
+        <div class="product-footer">
+          <div class="price">${formatUGX(product.calculatedPremium)}<small>/mo estimated</small></div>
+          <a class="btn btn-dark" href="pdp.html?product=${product.id}">View Details</a>
+        </div>
+      </article>
+    `).join('');
+
+    document.querySelectorAll('.compare-input').forEach(input => {
+      input.addEventListener('change', event => toggleCompare(Number(event.target.dataset.id), event.target.checked));
+      input.disabled = selectedCompareIds.length >= 3 && !selectedCompareIds.includes(Number(input.dataset.id));
+    });
+    updateCompareTray();
+  }
+
+  function toggleCompare(id, checked) {
+    if (checked) {
+      if (!selectedCompareIds.includes(id) && selectedCompareIds.length < 3) selectedCompareIds.push(id);
+      if (selectedCompareIds.length >= 3) {
+        document.querySelectorAll('.compare-input:not(:checked)').forEach(input => input.disabled = true);
+      }
+    } else {
+      selectedCompareIds = selectedCompareIds.filter(selectedId => selectedId !== id);
+      document.querySelectorAll('.compare-input').forEach(input => input.disabled = false);
+    }
+    renderProducts();
+  }
+
+  function updateCompareTray() {
+    const tray = document.getElementById('compare-tray');
+    const selectedProducts = selectedCompareIds.map(id => mockProducts.find(product => product.id === id)).filter(Boolean);
+    tray.classList.toggle('visible', selectedProducts.length > 0);
+    document.getElementById('tray-count').innerText = `${selectedProducts.length} plan${selectedProducts.length === 1 ? '' : 's'} selected`;
+    document.getElementById('tray-bubbles').innerHTML = selectedProducts.map(product => {
+      const initials = product.insurer.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase();
+      return `<div class="tray-bubble" title="${product.title}">${initials}</div>`;
+    }).join('');
+  }
+
+  function finish(priority) {
+    selections.priority = priority;
+    
+    // UI Transitions
+    document.getElementById('discovery-section').style.display = 'none';
+    document.getElementById('listing-view').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Render Listing Data
+    const title = selections.category.charAt(0).toUpperCase() + selections.category.slice(1);
+    document.getElementById('listing-title').innerHTML = `The best <em>${title}</em> plans for you.`;
+    
+    document.getElementById('chips-container').innerHTML = `
+      <div class="chip active">${title} Insurance</div>
+      <div class="chip">${selections.sub || 'All'}</div>
+      <div class="chip">Priority: ${priority}</div>
+    `;
+
+    syncCalculatorFromSelection();
+    renderProducts();
+  }
+
+  ['calc-cover', 'calc-age', 'calc-tier', 'calc-budget', 'filter-ipf', 'sort-select'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderProducts);
+    document.getElementById(id).addEventListener('change', renderProducts);
+  });
+  document.querySelectorAll('.filter-input, .insurer-input').forEach(input => {
+    input.addEventListener('change', renderProducts);
+  });
+  document.getElementById('clear-compare').addEventListener('click', () => {
+    selectedCompareIds = [];
+    renderProducts();
+  });
+  document.getElementById('compare-now').addEventListener('click', () => {
+    if (selectedCompareIds.length < 2) {
+      document.getElementById('tray-count').innerText = 'Select at least 2 plans to compare';
+      return;
+    }
+
+    localStorage.setItem('nxtpeCompareSelection', JSON.stringify({
+      ids: selectedCompareIds,
+      quote: getQuoteState(),
+      selections,
+      savedAt: new Date().toISOString()
+    }));
+    window.location.href = `compare.html?ids=${selectedCompareIds.join(',')}`;
+  });
+
+  document.getElementById('ai-submit').addEventListener('click', () => guideFromSearch());
+  document.getElementById('ai-search-input').addEventListener('keydown', event => {
+    if (event.key === 'Enter') guideFromSearch();
+  });
+  document.querySelectorAll('.ai-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.getElementById('ai-search-input').value = chip.dataset.query;
+      guideFromSearch(chip.dataset.query);
+    });
+  });
+
+  document.getElementById('mic-btn').addEventListener('click', () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const mic = document.getElementById('mic-btn');
+    const hint = document.getElementById('ai-hint');
+
+    if (!SpeechRecognition) {
+      hint.innerText = 'Voice is not available in this browser. Type your request and I will guide it.';
+      document.getElementById('ai-search-input').focus();
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-UG';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    mic.classList.add('listening');
+    hint.innerText = 'Listening... say what you want covered.';
+
+    recognition.onresult = event => {
+      const transcript = event.results[0][0].transcript;
+      document.getElementById('ai-search-input').value = transcript;
+      guideFromSearch(transcript);
+    };
+
+    recognition.onerror = () => {
+      hint.innerText = 'I could not hear that. You can type the request instead.';
+    };
+
+    recognition.onend = () => mic.classList.remove('listening');
+    recognition.start();
+  });
+</script>
+</body>
+</html>

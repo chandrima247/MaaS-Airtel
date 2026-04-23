@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Compare Health Plans - NxtPe Insure</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #000000;
+    --accent: #E31C23;
+    --bg: #f9fafb;
+    --paper: #ffffff;
+    --ink: #1a1a1b;
+    --ink-light: #6b7280;
+    --border: #e5e7eb;
+    --soft-red: #fff1f2;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); line-height: 1.5; }
+  .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  nav { height: 72px; display: flex; align-items: center; justify-content: space-between; background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .logo { font-weight: 900; font-size: 20px; letter-spacing: -0.03em; text-decoration: none; color: var(--ink); }
+  .logo span { color: var(--accent); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 10px 18px; border: 0; border-radius: 10px; font: 800 14px var(--font-sans); text-decoration: none; cursor: pointer; }
+  .btn-dark { background: var(--primary); color: white; }
+  .btn-ghost { background: white; color: var(--ink); border: 1px solid var(--border); }
+
+  main { padding: 72px 0 96px; }
+  .breadcrumb { display: flex; gap: 10px; color: var(--ink-light); font-size: 13px; font-weight: 700; margin-bottom: 28px; }
+  .breadcrumb a { color: inherit; text-decoration: none; }
+  .compare-head { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: end; margin-bottom: 30px; }
+  .eyebrow { display: block; margin-bottom: 12px; color: var(--accent); font-size: 12px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+  h1 { font-size: clamp(42px, 6vw, 72px); line-height: 0.92; letter-spacing: -0.055em; max-width: 760px; }
+  h1 em { font-family: var(--font-serif); font-weight: 400; font-style: italic; }
+  .lead { color: var(--ink-light); font-size: 16px; max-width: 600px; margin-top: 20px; }
+  .quote-card { background: var(--primary); color: white; border-radius: 24px; padding: 22px; box-shadow: 0 24px 70px rgba(0,0,0,0.18); }
+  .quote-card small { color: rgba(255,255,255,0.58); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quote-card strong { display: block; margin-top: 8px; font-size: 28px; letter-spacing: -0.04em; }
+  .quote-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .quote-tags span { padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.76); font-size: 12px; font-weight: 800; text-transform: capitalize; }
+
+  .compare-table { overflow-x: auto; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 24px 70px rgba(0,0,0,0.04); }
+  .ct-row { min-width: 900px; display: grid; grid-template-columns: 220px repeat(var(--cols), minmax(220px, 1fr)); }
+  .ct-row + .ct-row { border-top: 1px solid var(--border); }
+  .ct-label { padding: 18px 20px; background: #fbfbfc; color: var(--ink-light); font-size: 12px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+  .ct-plan,
+  .ct-value { padding: 20px; border-left: 1px solid var(--border); }
+  .ct-plan.recommended { background: linear-gradient(180deg, #fff7f7, white); box-shadow: inset 0 4px 0 var(--accent); }
+  .insurer { color: var(--ink-light); font-size: 12px; font-weight: 900; }
+  .plan-title { margin-top: 6px; font-size: 18px; font-weight: 900; letter-spacing: -0.03em; }
+  .badge { display: inline-flex; margin-top: 12px; padding: 5px 9px; border-radius: 8px; background: var(--soft-red); color: var(--accent); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+  .price { margin-top: 14px; font-size: 24px; font-weight: 900; letter-spacing: -0.04em; }
+  .price small { color: var(--ink-light); font-size: 12px; font-weight: 600; }
+  .ct-value { min-height: 72px; color: var(--ink); font-size: 14px; font-weight: 700; }
+  .ct-value b { font-size: 16px; }
+  .winner { display: inline-flex; margin-top: 8px; padding: 4px 8px; border-radius: 999px; background: var(--primary); color: white; font-size: 10px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
+  .yes { color: var(--accent); font-weight: 900; }
+  .no { color: #9ca3af; }
+  .actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+
+  @media (max-width: 850px) {
+    .compare-head { grid-template-columns: 1fr; }
+    main { padding-top: 48px; }
+    .ct-row { min-width: 760px; grid-template-columns: 170px repeat(var(--cols), minmax(190px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<nav class="container">
+  <a class="logo" href="index.html">Nxt<span>Pe</span> Insure</a>
+  <a href="index.html" class="btn btn-dark">Back to results</a>
+</nav>
+
+<main>
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span>/</span>
+      <span>Compare</span>
+    </div>
+
+    <section class="compare-head">
+      <div>
+        <span class="eyebrow">Plan comparison</span>
+        <h1>Compare <em>health plans</em> side by side.</h1>
+        <p class="lead">This page uses the plans selected in the home4 compare tray, then keeps the same calculator context so premiums stay consistent.</p>
+      </div>
+      <aside class="quote-card">
+        <small>Quote context</small>
+        <strong id="quote-premium">Live estimates</strong>
+        <div class="quote-tags" id="quote-tags"></div>
+      </aside>
+    </section>
+
+    <section class="compare-table" id="compare-table" aria-label="Selected plan comparison"></section>
+
+    <div class="actions">
+      <a href="pdp.html" class="btn btn-dark" id="continue-plan">Continue with recommended</a>
+      <a href="index.html" class="btn btn-ghost">Add another plan</a>
+    </div>
+  </div>
+</main>
+
+<script>
+  const products = [
+    { id: 1, cat: 'health', title: 'Jubilee J-Care Junior', insurer: 'Jubilee Health', price: '12,000', badge: 'Child Cover', tags: ['opd', 'dental', 'optical'], coverScore: 92, claimsScore: 82, ipf: true, maxCover: 'UGX 150M', network: 'Countrywide providers', claimTime: '3-5 days', excess: 'None on OPD', rating: '4.6/5', features: ['OPD', 'Dental', 'Optical'] },
+    { id: 2, cat: 'health', title: 'Liberty Health Lite', insurer: 'Liberty', price: '28,000', badge: 'Popular', tags: ['opd'], coverScore: 84, claimsScore: 78, ipf: true, maxCover: 'UGX 5M', network: '300+ hospitals', claimTime: '5 days', excess: '10%', rating: '4.3/5', features: ['OPD', 'Inpatient'] },
+    { id: 3, cat: 'health', title: 'Sanlam Hospital Cash', insurer: 'Sanlam', price: '8,500', badge: 'Best Value', tags: ['opd'], coverScore: 72, claimsScore: 94, ipf: true, maxCover: 'UGX 100k/day', network: 'Cash benefit', claimTime: '48 hours', excess: 'None', rating: '4.5/5', features: ['Hospital cash', 'Accident', 'Illness'] },
+    { id: 4, cat: 'health', title: 'UAP Family Shield', insurer: 'UAP Old Mutual', price: '45,000', badge: 'Premium', tags: ['opd', 'dental', 'optical'], coverScore: 96, claimsScore: 76, ipf: false, maxCover: 'UGX 250M', network: 'Regional network', claimTime: '5-7 days', excess: '15%', rating: '4.4/5', features: ['Family', 'Dental', 'Optical'] },
+    { id: 5, cat: 'motor', title: 'Britam Third Party', insurer: 'Britam', price: '42,500', badge: 'Mandatory', tags: [], coverScore: 76, claimsScore: 84, ipf: true, maxCover: 'Legal liability', network: 'Instant sticker', claimTime: '3 days', excess: 'Policy based', rating: '4.2/5', features: ['Liability', 'Damage'] },
+    { id: 6, cat: 'device', title: 'ICEA Screen Protect', insurer: 'ICEA Lion', price: '3,200', badge: 'New', tags: [], coverScore: 70, claimsScore: 88, ipf: false, maxCover: 'Screen repair', network: 'Pickup and delivery', claimTime: '3 days', excess: '10%', rating: '4.1/5', features: ['Screen', 'Repair'] }
+  ];
+
+  function parseUGX(value) {
+    return Number(String(value).replace(/,/g, '')) || 0;
+  }
+
+  function formatUGX(value) {
+    return `UGX ${Math.round(value).toLocaleString('en-US')}`;
+  }
+
+  function calculatePremium(product, quote) {
+    const tierFactor = { lite: 0.86, standard: 1, premium: 1.28 }[quote.tier] || 1;
+    const coverFactor = { child: 0.92, self: 1, family: 1.42, parents: 1.58 }[quote.cover] || 1;
+    const ageFactor = quote.age > 55 ? 1.24 : quote.age > 35 ? 1.1 : quote.age < 12 ? 0.96 : 1;
+    const benefitAddOn = (quote.benefits || []).reduce((sum, benefit) => sum + ({ opd: 0, dental: 3000, optical: 2500 }[benefit] || 0), 0);
+    return Math.max(2500, (parseUGX(product.price) * tierFactor * coverFactor * ageFactor) + benefitAddOn);
+  }
+
+  function getCompareState() {
+    const stored = JSON.parse(localStorage.getItem('nxtpeCompareSelection') || '{}');
+    const queryIds = new URLSearchParams(window.location.search).get('ids');
+    const ids = queryIds
+      ? queryIds.split(',').map(Number).filter(Boolean)
+      : Array.isArray(stored.ids) ? stored.ids : [1, 2, 3];
+    return {
+      ids: ids.slice(0, 3),
+      quote: stored.quote || { cover: 'child', age: 8, tier: 'standard', budget: 45000, benefits: ['opd'], sort: 'price' }
+    };
+  }
+
+  function metricWinner(plans, accessor, direction = 'high') {
+    const values = plans.map(accessor);
+    const target = direction === 'low' ? Math.min(...values) : Math.max(...values);
+    return values.map(value => value === target);
+  }
+
+  function valueCell(value, isWinner) {
+    return `<div class="ct-value">${value}${isWinner ? '<div class="winner">Best</div>' : ''}</div>`;
+  }
+
+  function renderCompare() {
+    const state = getCompareState();
+    const selected = state.ids.map(id => products.find(product => product.id === id)).filter(Boolean);
+    const plans = selected.length >= 2 ? selected : products.slice(0, 3);
+    const quote = state.quote;
+    const withPremiums = plans.map(product => ({ ...product, premium: calculatePremium(product, quote) }));
+    const recommended = [...withPremiums].sort((a, b) => {
+      const aScore = a.coverScore + a.claimsScore - (a.premium / 1000);
+      const bScore = b.coverScore + b.claimsScore - (b.premium / 1000);
+      return bScore - aScore;
+    })[0];
+
+    document.getElementById('quote-premium').innerText = `${withPremiums.length} plans selected`;
+    document.getElementById('quote-tags').innerHTML = [
+      quote.cover || 'child',
+      `${quote.age || 8} yrs`,
+      quote.tier || 'standard',
+      (quote.benefits || ['opd']).join(', ')
+    ].map(tag => `<span>${tag}</span>`).join('');
+
+    const premiumWinners = metricWinner(withPremiums, plan => plan.premium, 'low');
+    const coverWinners = metricWinner(withPremiums, plan => plan.coverScore, 'high');
+    const claimsWinners = metricWinner(withPremiums, plan => plan.claimsScore, 'high');
+    const ratingWinners = metricWinner(withPremiums, plan => Number(plan.rating.split('/')[0]), 'high');
+
+    document.getElementById('compare-table').style.setProperty('--cols', withPremiums.length);
+    document.getElementById('compare-table').innerHTML = `
+      <div class="ct-row">
+        <div class="ct-label">Compare</div>
+        ${withPremiums.map(plan => `
+          <div class="ct-plan ${plan.id === recommended.id ? 'recommended' : ''}">
+            <div class="insurer">${plan.insurer}</div>
+            <div class="plan-title">${plan.title}</div>
+            <span class="badge">${plan.id === recommended.id ? 'Recommended' : plan.badge}</span>
+            <div class="price">${formatUGX(plan.premium)}<small> /mo</small></div>
+            <a href="pdp.html?product=${plan.id}" class="btn ${plan.id === recommended.id ? 'btn-dark' : 'btn-ghost'}" style="margin-top:14px">View Details</a>
+          </div>
+        `).join('')}
+      </div>
+      <div class="ct-row">${'<div class="ct-label">Monthly premium</div>'}${withPremiums.map((plan, i) => valueCell(`<b>${formatUGX(plan.premium)}</b>`, premiumWinners[i])).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Max cover</div>'}${withPremiums.map(plan => valueCell(plan.maxCover, false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Coverage score</div>'}${withPremiums.map((plan, i) => valueCell(`<b>${plan.coverScore}/100</b>`, coverWinners[i])).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Claim speed</div>'}${withPremiums.map((plan, i) => valueCell(`${plan.claimTime}<br><small>${plan.claimsScore}/100 score</small>`, claimsWinners[i])).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">OPD</div>'}${withPremiums.map(plan => valueCell(plan.tags.includes('opd') ? '<span class="yes">Included</span>' : '<span class="no">Not included</span>', false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Dental</div>'}${withPremiums.map(plan => valueCell(plan.tags.includes('dental') ? '<span class="yes">Included</span>' : '<span class="no">Optional/No</span>', false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Optical</div>'}${withPremiums.map(plan => valueCell(plan.tags.includes('optical') ? '<span class="yes">Included</span>' : '<span class="no">Optional/No</span>', false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Network</div>'}${withPremiums.map(plan => valueCell(plan.network, false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">IPF / monthly pay</div>'}${withPremiums.map(plan => valueCell(plan.ipf ? '<span class="yes">Available</span>' : '<span class="no">Pay upfront</span>', false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Excess</div>'}${withPremiums.map(plan => valueCell(plan.excess, false)).join('')}</div>
+      <div class="ct-row">${'<div class="ct-label">Customer rating</div>'}${withPremiums.map((plan, i) => valueCell(`<b>${plan.rating}</b>`, ratingWinners[i])).join('')}</div>
+    `;
+
+    document.getElementById('continue-plan').href = `pdp.html?product=${recommended.id}`;
+    document.getElementById('continue-plan').innerText = `Continue with ${recommended.title}`;
+  }
+
+  renderCompare();
+</script>
+</body>
+</html>
