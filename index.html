@@ -127,10 +127,10 @@
     border-radius: 50%;
     background: #fff1f2;
     color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 10px;
+    display: grid;
+    place-items: center;
   }
+  .mic-btn svg { width: 18px; height: 18px; display: block; }
   .mic-btn.listening { background: var(--accent); color: white; animation: pulseMic 1s ease-in-out infinite; }
   .ai-submit {
     min-height: 42px;
@@ -352,7 +352,11 @@
         <h1>What would you like to <em>protect?</em></h1>
         <p class="hero-sub">Choose a category to discover regulated products built for Ugandan life.</p>
         <div class="ai-search" role="search" aria-label="Conversational insurance search">
-          <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">mic</button>
+          <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M12 14c1.7 0 3-1.3 3-3V6c0-1.7-1.3-3-3-3S9 4.3 9 6v5c0 1.7 1.3 3 3 3Zm5.3-3c0 3-2.2 5.3-5.3 5.3S6.7 14 6.7 11H5c0 3.6 2.7 6.6 6.2 7v3h1.6v-3c3.5-.4 6.2-3.4 6.2-7h-1.7Z"/>
+            </svg>
+          </button>
           <input id="ai-search-input" type="text" placeholder="Tell us: I need health cover for my child">
           <button class="ai-submit" id="ai-submit" type="button">Guide me</button>
         </div>
