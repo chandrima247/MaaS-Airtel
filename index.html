@@ -190,81 +190,6 @@
   }
   .mic-btn:hover,
   .ai-submit:hover { transform: translateY(-1px); }
-  .ai-suggestions {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 22px;
-  }
-  .ai-chip {
-    border: 1px solid var(--border);
-    background: rgba(255,255,255,0.72);
-    color: var(--ink-light);
-    border-radius: 999px;
-    padding: 7px 12px;
-    font: 700 11px var(--font-sans);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .ai-chip:hover { border-color: var(--accent); color: var(--accent); background: #fffafa; }
-  .ai-hint {
-    min-height: 20px;
-    margin: -10px auto 18px;
-    color: var(--accent);
-    font-size: 12px;
-    font-weight: 700;
-  }
-  .ai-assistant-shell {
-    width: min(680px, calc(100% - 32px));
-    margin: 0 auto 22px;
-    display: grid;
-    gap: 10px;
-  }
-  .ai-turn {
-    padding: 12px 14px;
-    border-radius: 18px;
-    font-size: 13px;
-    line-height: 1.6;
-    text-align: left;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.06);
-  }
-  .ai-turn.user {
-    margin-left: auto;
-    max-width: 80%;
-    background: var(--primary);
-    color: white;
-    border-bottom-right-radius: 6px;
-  }
-  .ai-turn.bot {
-    background: rgba(255,255,255,0.92);
-    border: 1px solid var(--border);
-    color: var(--ink);
-    border-bottom-left-radius: 6px;
-  }
-  .ai-actions {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .ai-action-btn {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: rgba(255,255,255,0.8);
-    color: var(--ink);
-    padding: 9px 12px;
-    font: 800 11px var(--font-sans);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .ai-action-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: #fff7f7;
-  }
 
   @keyframes pulseMic {
     0%, 100% { box-shadow: 0 0 0 0 rgba(227,28,35,0.26); }
@@ -520,35 +445,20 @@
 
     <div class="guide-container">
       <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
-      <div class="ai-assistant-shell" id="ai-assistant-shell" aria-live="polite">
-        <div class="ai-turn user" id="ai-user-turn" hidden></div>
-        <div class="ai-turn bot" id="ai-bot-turn" hidden></div>
-        <div class="ai-actions">
-          <button class="ai-action-btn" id="ai-talk-btn" type="button">Talk</button>
-          <button class="ai-action-btn" id="ai-choose-btn" type="button">Choose from options</button>
-          <button class="ai-action-btn" id="ai-listing-btn" type="button">Go to listing</button>
-        </div>
+      <div class="ai-search" role="search" aria-label="Conversational insurance search">
+        <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M12 14c1.7 0 3-1.3 3-3V6c0-1.7-1.3-3-3-3S9 4.3 9 6v5c0 1.7 1.3 3 3 3Zm5.3-3c0 3-2.2 5.3-5.3 5.3S6.7 14 6.7 11H5c0 3.6 2.7 6.6 6.2 7v3h1.6v-3c3.5-.4 6.2-3.4 6.2-7h-1.7Z"/>
+          </svg>
+        </button>
+        <input id="ai-search-input" type="text" placeholder="Tell us: I need health cover for my child">
+        <button class="ai-submit" id="ai-submit" type="button">Guide me</button>
       </div>
 
       <!-- STEP 1 -->
       <div class="step active" id="step-1">
         <h1>What would you like to <em>protect?</em></h1>
         <p class="hero-sub" id="hero-sub-country">Choose a category to discover regulated products built for your market.</p>
-        <div class="ai-search" role="search" aria-label="Conversational insurance search">
-          <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path fill="currentColor" d="M12 14c1.7 0 3-1.3 3-3V6c0-1.7-1.3-3-3-3S9 4.3 9 6v5c0 1.7 1.3 3 3 3Zm5.3-3c0 3-2.2 5.3-5.3 5.3S6.7 14 6.7 11H5c0 3.6 2.7 6.6 6.2 7v3h1.6v-3c3.5-.4 6.2-3.4 6.2-7h-1.7Z"/>
-            </svg>
-          </button>
-          <input id="ai-search-input" type="text" placeholder="Tell us: I need health cover for my child">
-          <button class="ai-submit" id="ai-submit" type="button">Guide me</button>
-        </div>
-        <div class="ai-suggestions" aria-label="Example searches">
-          <button class="ai-chip" type="button" data-query="I need health cover for my child">Child health cover</button>
-          <button class="ai-chip" type="button" data-query="I want cheap motor insurance">Cheap motor cover</button>
-          <button class="ai-chip" type="button" data-query="Protect my phone screen">Phone protection</button>
-        </div>
-        <p class="ai-hint" id="ai-hint"></p>
         <div class="options-grid">
           <div class="option-card" onclick="nextStep(1, 'life')"><div class="option-icon">Life</div><span>Life Cover</span></div>
           <div class="option-card" onclick="nextStep(1, 'health')"><div class="option-icon">Health</div><span>Health & Medical</span></div>
@@ -825,6 +735,7 @@
   let selectedCompareIds = [];
   let listingLocked = false;
   let calculatorConfirmed = true;
+  const searchInput = document.getElementById('ai-search-input');
 
   function findOptionLabel(category, id) {
     const option = (cleanStep2Config[category]?.options || []).find(item => item.id === id);
@@ -840,27 +751,8 @@
     return priority === 'price' ? 'lowest price' : priority === 'cover' ? 'maximum cover' : priority === 'claims' ? 'fastest claims' : 'your priority';
   }
 
-  function updateAiAssistant(assistantText, userText = '') {
-    const userTurn = document.getElementById('ai-user-turn');
-    const botTurn = document.getElementById('ai-bot-turn');
-    if (userText) {
-      userTurn.hidden = false;
-      userTurn.innerText = userText;
-    }
-    botTurn.hidden = !assistantText;
-    botTurn.innerText = assistantText;
-  }
-
-  function updateAssistantForCurrentStep(messageOverride = '') {
-    if (!selections.category) {
-      updateAiAssistant(messageOverride || 'Tell me what you want to protect. You can keep talking, choose a category below, or jump to listing first.');
-      return;
-    }
-    if (!selections.sub) {
-      updateAiAssistant(messageOverride || `${categoryLabel(selections.category)} sounds right. ${cleanStep2Config[selections.category].sub} You can answer by talking, choose below, or go to listing first.`);
-      return;
-    }
-    updateAiAssistant(messageOverride || `Got it: ${findOptionLabel(selections.category, selections.sub)}. What matters most: lowest price, maximum cover, or fastest claims?`);
+  function setSearchPlaceholder(text) {
+    searchInput.placeholder = text;
   }
 
   function resetDiscoverySteps() {
@@ -868,7 +760,7 @@
     document.getElementById('step-1').classList.add('active');
     document.getElementById('progress').style.width = '33.33%';
     selections = { category: '', sub: '', priority: '' };
-    updateAssistantForCurrentStep();
+    setSearchPlaceholder('Tell us: I need health cover for my child');
   }
 
   function inferIntent(query) {
@@ -905,22 +797,24 @@
   }
 
   function guideFromSearch(query) {
-    const input = document.getElementById('ai-search-input');
-    const hint = document.getElementById('ai-hint');
-    const value = (query || input.value || '').trim();
+    const value = (query || searchInput.value || '').trim();
 
     if (!value) {
-      hint.innerText = 'Try: health cover for my child, cheap motor insurance, or protect my phone.';
-      input.focus();
+      setSearchPlaceholder('Try: health cover for my child, cheap motor insurance, or protect my phone');
+      searchInput.focus();
       return;
     }
 
-    hint.innerText = '';
+    if (/(show|see|open|skip).*(plans|listing|quotes)|^(plans|listing|quotes)$/i.test(value)) {
+      openListing(true);
+      return;
+    }
+
     let intent = inferIntent(value);
 
     if (!selections.category) {
       if (!intent.category) {
-        updateAiAssistant('I can guide health, motor, device, life, agriculture, or travel cover. Keep talking, choose from the options below, or go to listing first and fill the calculator there.', value);
+        setSearchPlaceholder('Try health, motor, device, life, travel, or agriculture cover');
         return;
       }
       if (intent.sub && !cleanStep2Config[intent.category].options.some(option => option.id === intent.sub)) {
@@ -932,40 +826,31 @@
 
       if (intent.sub) {
         nextStep(2, intent.sub, true);
-        if (intent.priority) {
-          updateAiAssistant(`I understood ${findOptionLabel(intent.category, intent.sub)} and heard you care about ${priorityLabel(intent.priority)}. You can say that again, choose below, or go straight to listing first.`, value);
-        } else {
-          updateAiAssistant(`I matched this to ${findOptionLabel(intent.category, intent.sub)}. What matters most next: lowest price, maximum cover, or fastest claims?`, value);
-        }
+        setSearchPlaceholder(intent.priority ? `You can say "${priorityLabel(intent.priority)}" or choose below` : 'Tell us what matters most: lowest price, maximum cover, or fastest claims');
         return;
       }
 
-      updateAiAssistant(`I found ${categoryLabel(intent.category)} cover. ${cleanStep2Config[intent.category].sub} You can answer by talking, choose below, or go to listing first.`, value);
+      setSearchPlaceholder(cleanStep2Config[intent.category].sub);
       return;
     }
 
     if (!selections.sub) {
       const validSub = intent.sub && cleanStep2Config[selections.category].options.some(option => option.id === intent.sub) ? intent.sub : '';
       if (!validSub) {
-        updateAiAssistant(`You're exploring ${categoryLabel(selections.category)} cover. Tell me who or what it is for, choose from the options below, or go to listing first.`, value);
+        setSearchPlaceholder(cleanStep2Config[selections.category].sub);
         return;
       }
       nextStep(2, validSub, true);
-      if (intent.priority) {
-        updateAiAssistant(`Perfect. I have ${findOptionLabel(selections.category, validSub)} and ${priorityLabel(intent.priority)}. Say that again or choose it below and I'll rank the plans.`, value);
-      } else {
-        updateAiAssistant(`Great, ${findOptionLabel(selections.category, validSub)}. What matters most: lowest price, maximum cover, or fastest claims?`, value);
-      }
+      setSearchPlaceholder(intent.priority ? `You can say "${priorityLabel(intent.priority)}" or choose below` : 'Tell us what matters most: lowest price, maximum cover, or fastest claims');
       return;
     }
 
     if (intent.priority) {
-      updateAiAssistant(`Perfect. I'll rank ${categoryLabel(selections.category)} plans for ${findOptionLabel(selections.category, selections.sub)} by ${priorityLabel(intent.priority)}.`, value);
       finish(intent.priority);
       return;
     }
 
-    updateAiAssistant('Tell me what matters most: lowest price, maximum cover, or fastest claims. You can also choose below or go to listing first.', value);
+    setSearchPlaceholder('Tell us what matters most: lowest price, maximum cover, or fastest claims');
   }
 
   function nextStep(stepNum, val, skipAssistantUpdate = false) {
@@ -981,16 +866,24 @@
     document.getElementById(`step-${stepNum}`).classList.remove('active');
     document.getElementById(`step-${stepNum + 1}`).classList.add('active');
     document.getElementById('progress').style.width = ((stepNum + 1) * 33.33) + '%';
-    if (!skipAssistantUpdate) updateAssistantForCurrentStep();
+    if (!skipAssistantUpdate) {
+      if (stepNum === 1) setSearchPlaceholder(cleanStep2Config[val].sub);
+      if (stepNum === 2) setSearchPlaceholder('Tell us what matters most: lowest price, maximum cover, or fastest claims');
+    }
   }
 
   function prevStep(stepNum) {
     document.getElementById(`step-${stepNum}`).classList.remove('active');
     document.getElementById(`step-${stepNum - 1}`).classList.add('active');
     document.getElementById('progress').style.width = ((stepNum - 1) * 33.33) + '%';
-    if (stepNum === 2) selections.category = '';
-    if (stepNum === 3) selections.sub = '';
-    updateAssistantForCurrentStep();
+    if (stepNum === 2) {
+      selections.category = '';
+      setSearchPlaceholder('Tell us: I need health cover for my child');
+    }
+    if (stepNum === 3) {
+      selections.sub = '';
+      setSearchPlaceholder(cleanStep2Config[selections.category].sub);
+    }
   }
 
   function convertAmount(value) {
@@ -1244,25 +1137,6 @@
   document.getElementById('ai-search-input').addEventListener('keydown', event => {
     if (event.key === 'Enter') guideFromSearch();
   });
-  document.querySelectorAll('.ai-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.getElementById('ai-search-input').value = chip.dataset.query;
-      guideFromSearch(chip.dataset.query);
-    });
-  });
-  document.getElementById('ai-talk-btn').addEventListener('click', () => {
-    document.getElementById('ai-search-input').focus();
-    updateAssistantForCurrentStep('Keep talking. I will only ask the next question that matters.');
-  });
-  document.getElementById('ai-choose-btn').addEventListener('click', () => {
-    const activeStep = document.querySelector('.step.active');
-    activeStep?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    updateAssistantForCurrentStep('Choose from the options below whenever that feels easier than typing.');
-  });
-  document.getElementById('ai-listing-btn').addEventListener('click', () => {
-    updateAiAssistant('Opening listing now. Plans will stay hidden until you confirm or adjust the calculator.', document.getElementById('ai-search-input').value.trim());
-    openListing(true);
-  });
   document.getElementById('unlock-listing-quotes').addEventListener('click', () => {
     calculatorConfirmed = true;
     listingLocked = false;
@@ -1272,17 +1146,17 @@
     document.getElementById('listing-view').style.display = 'none';
     document.getElementById('discovery-section').style.display = 'flex';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    updateAssistantForCurrentStep('You are back in the assistant. Keep talking, choose below, or jump to listing again.');
+    setSearchPlaceholder('Tell us: I need health cover for my child');
+    searchInput.focus();
   });
 
   document.getElementById('mic-btn').addEventListener('click', () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const mic = document.getElementById('mic-btn');
-    const hint = document.getElementById('ai-hint');
 
     if (!SpeechRecognition) {
-      hint.innerText = 'Voice is not available in this browser. Type your request and I will guide it.';
-      document.getElementById('ai-search-input').focus();
+      setSearchPlaceholder('Voice is not available here. Type your request instead');
+      searchInput.focus();
       return;
     }
 
@@ -1291,19 +1165,22 @@
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     mic.classList.add('listening');
-    hint.innerText = 'Listening... say what you want covered.';
+    setSearchPlaceholder('Listening... say what you want covered');
 
     recognition.onresult = event => {
       const transcript = event.results[0][0].transcript;
-      document.getElementById('ai-search-input').value = transcript;
+      searchInput.value = transcript;
       guideFromSearch(transcript);
     };
 
     recognition.onerror = () => {
-      hint.innerText = 'I could not hear that. You can type the request instead.';
+      setSearchPlaceholder('Could not hear that. Type your request instead');
     };
 
-    recognition.onend = () => mic.classList.remove('listening');
+    recognition.onend = () => {
+      mic.classList.remove('listening');
+      if (!searchInput.value.trim()) setSearchPlaceholder('Tell us: I need health cover for my child');
+    };
     recognition.start();
   });
 
@@ -1320,6 +1197,7 @@
     window.location.reload();
   });
   configureCountryContext();
+  setSearchPlaceholder('Tell us: I need health cover for my child');
 </script>
 </body>
 </html>
