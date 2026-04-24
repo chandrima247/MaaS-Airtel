@@ -191,26 +191,25 @@
   .mic-btn:hover,
   .ai-submit:hover { transform: translateY(-1px); }
   .ai-thread-dock {
-    position: absolute;
-    top: 56px;
-    right: -244px;
-    width: 220px;
-    padding: 14px;
+    width: min(560px, calc(100% - 64px));
+    margin: 0 auto 18px;
+    padding: 12px;
     border: 1px solid rgba(229, 231, 235, 0.95);
     border-radius: 22px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.88);
     backdrop-filter: blur(18px);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.08);
+    box-shadow: 0 20px 44px rgba(0,0,0,0.07);
     text-align: left;
     z-index: 12;
     opacity: 0;
-    transform: translateY(8px);
+    max-height: 0;
+    overflow: hidden;
     pointer-events: none;
-    transition: all 0.24s ease;
+    transition: opacity 0.24s ease, max-height 0.24s ease, margin 0.24s ease, padding 0.24s ease;
   }
   .ai-thread-dock.visible {
     opacity: 1;
-    transform: translateY(0);
+    max-height: 260px;
     pointer-events: auto;
   }
   .ai-thread-head {
@@ -235,7 +234,7 @@
   .ai-thread-list {
     display: grid;
     gap: 8px;
-    max-height: 240px;
+    max-height: 180px;
     overflow: auto;
     padding-right: 2px;
   }
@@ -447,15 +446,9 @@
     .tray-actions { width: 100%; }
     .tray-actions .btn { flex: 1; }
     .ai-thread-dock {
-      position: static;
       width: min(680px, calc(100% - 32px));
       margin: 0 auto 16px;
-      opacity: 1;
-      transform: none;
-      pointer-events: auto;
-      display: none;
     }
-    .ai-thread-dock.visible { display: block; }
   }
 
   @media (max-width: 560px) {
