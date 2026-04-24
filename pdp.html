@@ -120,6 +120,16 @@
     object-fit: contain;
     display: block;
   }
+  .country-select {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    padding: 10px 14px;
+    font: 750 13px var(--font-sans);
+    outline: 0;
+    cursor: pointer;
+  }
 
   .nav-links {
     display: flex;
@@ -1210,6 +1220,11 @@
       <a href="#faq">Get Support</a>
     </div>
     <div class="nav-actions">
+      <select class="country-select" id="country-select" aria-label="Select marketplace country">
+        <option value="UG">Uganda 🇺🇬</option>
+        <option value="KE">Kenya 🇰🇪</option>
+        <option value="ZM">Zambia 🇿🇲</option>
+      </select>
       <a href="#quote-card" class="nav-cta">Get Quote</a>
       <img class="airtel-logo" src="https://i0.wp.com/png.co.ke/wp-content/uploads/2025/02/Airtel-Money.png?fit=1500,1247&ssl=1" alt="Airtel Money logo">
     </div>
@@ -1439,7 +1454,7 @@
               <th>Royal</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="planCompareBody">
             <tr>
               <th scope="row">Inpatient</th>
               <td>UGX 15M</td>
@@ -1499,7 +1514,7 @@
           <div class="plain-list">
             <div class="plain-item">
               <div class="check">+</div>
-              <div><strong>Ugandan residents</strong> - citizens and legal residents.</div>
+              <div><strong id="residentCountry">Ugandan residents</strong> - citizens and legal residents.</div>
             </div>
             <div class="plain-item">
               <div class="check">+</div>
@@ -1914,6 +1929,13 @@
 </div>
 
 <script>
+  const countryConfigs = {
+    UG: { label: 'Uganda 🇺🇬', country: 'Uganda', residentLabel: 'Ugandan residents', currency: 'UGX', multiplier: 1 },
+    KE: { label: 'Kenya 🇰🇪', country: 'Kenya', residentLabel: 'Kenyan residents', currency: 'KES', multiplier: 0.036 },
+    ZM: { label: 'Zambia 🇿🇲', country: 'Zambia', residentLabel: 'Zambian residents', currency: 'ZMW', multiplier: 0.0075 }
+  };
+  const countryCode = localStorage.getItem('nxtinsureCountry') || 'UG';
+  const currentCountry = countryConfigs[countryCode] || countryConfigs.UG;
   const planData = {
     classic: {
       name: "Classic",
@@ -2032,11 +2054,11 @@
   };
 
   function money(value) {
-    return "UGX " + Math.round(value).toLocaleString("en-UG");
+    return currentCountry.currency + " " + Math.round(value * currentCountry.multiplier).toLocaleString("en-US");
   }
 
   function compactMoney(value, withCurrency) {
-    const rounded = Math.round(value);
+    const rounded = Math.round(value * currentCountry.multiplier);
     let output = "";
 
     if (rounded >= 1000000) {
@@ -2048,7 +2070,34 @@
       output = String(rounded);
     }
 
-    return (withCurrency ? "UGX " : "") + output;
+    return (withCurrency ? currentCountry.currency + " " : "") + output;
+  }
+
+  function renderPlanSnapshotTable() {
+    const planOrder = ["classic", "premier", "advanced", "executive", "royal"];
+    const body = document.getElementById("planCompareBody");
+    if (!body) return;
+
+    const rows = [
+      { label: "Inpatient", values: planOrder.map((key) => compactMoney(planData[key].inpatientLimit, true)) },
+      { label: "Outpatient", values: planOrder.map((key) => compactMoney(planData[key].outpatientLimit, true)) },
+      { label: "Dental", values: planOrder.map((key) => compactMoney(planData[key].dentalLimit, true)) },
+      { label: "Optical", values: planOrder.map((key) => compactMoney(planData[key].opticalLimit, true)) },
+      { label: "Last Expense", values: planOrder.map((key) => compactMoney(planData[key].lastExpenseLimit, true)) },
+      { label: "Indicative base annual premium", values: planOrder.map((key) => money(planData[key].brochurePremium)) }
+    ];
+
+    body.innerHTML = rows.map((row) => `
+      <tr>
+        <th scope="row">${row.label}</th>
+        ${row.values.map((value) => `<td>${value}</td>`).join("")}
+      </tr>
+    `).join("");
+  }
+
+  function localizeStaticCopy() {
+    const residentCountry = document.getElementById("residentCountry");
+    if (residentCountry) residentCountry.textContent = currentCountry.residentLabel;
   }
 
   function memberCount() {
@@ -2422,6 +2471,13 @@
       document.getElementById("chat-reply").innerText = button.dataset.reply;
     });
   });
+  document.getElementById("country-select").value = countryCode;
+  document.getElementById("country-select").addEventListener("change", (event) => {
+    localStorage.setItem("nxtinsureCountry", event.target.value);
+    window.location.reload();
+  });
+  renderPlanSnapshotTable();
+  localizeStaticCopy();
 
   setPlan("classic");
 </script>

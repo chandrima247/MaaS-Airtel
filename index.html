@@ -68,6 +68,16 @@
   .mega-panel a:hover { color: var(--accent); }
   .nav-actions { display: flex; align-items: center; gap: 12px; }
   .airtel-logo { height: 40px; width: auto; object-fit: contain; display: block; }
+  .country-select {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: white;
+    color: var(--ink);
+    padding: 10px 14px;
+    font: 750 13px var(--font-sans);
+    outline: 0;
+    cursor: pointer;
+  }
 
   /* Conversational Hero */
   .hero {
@@ -424,6 +434,11 @@
     <a href="pdp.html#faq">Get Support</a>
   </div>
   <div class="nav-actions">
+    <select class="country-select" id="country-select" aria-label="Select marketplace country">
+      <option value="UG">Uganda 🇺🇬</option>
+      <option value="KE">Kenya 🇰🇪</option>
+      <option value="ZM">Zambia 🇿🇲</option>
+    </select>
     <a href="#" class="btn btn-dark">Login</a>
     <img class="airtel-logo" src="https://i0.wp.com/png.co.ke/wp-content/uploads/2025/02/Airtel-Money.png?fit=1500,1247&ssl=1" alt="Airtel Money logo">
   </div>
@@ -446,7 +461,7 @@
       <!-- STEP 1 -->
       <div class="step active" id="step-1">
         <h1>What would you like to <em>protect?</em></h1>
-        <p class="hero-sub">Choose a category to discover regulated products built for Ugandan life.</p>
+        <p class="hero-sub" id="hero-sub-country">Choose a category to discover regulated products built for your market.</p>
         <div class="ai-search" role="search" aria-label="Conversational insurance search">
           <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -533,7 +548,7 @@
               <span>Monthly budget</span>
               <input id="calc-budget" type="range" min="5000" max="70000" step="1000" value="45000">
               <div class="range-row">
-                <small>UGX 5k</small>
+                <small id="budget-min">UGX 5k</small>
                 <strong id="budget-label">UGX 45,000</strong>
               </div>
             </label>
@@ -550,10 +565,7 @@
               </div>
               <div>
                 <div class="filter-title">Insurer</div>
-                <label class="filter-check"><input class="insurer-input" type="checkbox" value="Jubilee Health" checked> Jubilee Health</label>
-                <label class="filter-check"><input class="insurer-input" type="checkbox" value="Liberty" checked> Liberty</label>
-                <label class="filter-check"><input class="insurer-input" type="checkbox" value="Sanlam" checked> Sanlam</label>
-                <label class="filter-check"><input class="insurer-input" type="checkbox" value="UAP Old Mutual" checked> UAP Old Mutual</label>
+                <div id="insurer-filter-group"></div>
               </div>
               <label class="filter-check"><input id="filter-ipf" type="checkbox"> Pay monthly/IPF available</label>
             </div>
@@ -631,6 +643,59 @@
 </footer>
 
 <script>
+  const countryConfigs = {
+    UG: {
+      label: 'Uganda 🇺🇬',
+      country: 'Uganda',
+      currency: 'UGX',
+      locale: 'en-UG',
+      multiplier: 1,
+      budget: { min: 5000, max: 70000, step: 1000, default: 45000 },
+      insurers: {
+        1: 'Jubilee Health',
+        2: 'Liberty',
+        3: 'Sanlam',
+        4: 'UAP Old Mutual',
+        5: 'Britam',
+        6: 'ICEA Lion'
+      }
+    },
+    KE: {
+      label: 'Kenya 🇰🇪',
+      country: 'Kenya',
+      currency: 'KES',
+      locale: 'en-KE',
+      multiplier: 0.036,
+      budget: { min: 500, max: 3000, step: 100, default: 1800 },
+      insurers: {
+        1: 'Jubilee Health Kenya',
+        2: 'APA Insurance',
+        3: 'AAR Insurance',
+        4: 'Old Mutual Kenya',
+        5: 'Britam Kenya',
+        6: 'Madison'
+      }
+    },
+    ZM: {
+      label: 'Zambia 🇿🇲',
+      country: 'Zambia',
+      currency: 'ZMW',
+      locale: 'en-ZM',
+      multiplier: 0.0075,
+      budget: { min: 100, max: 1800, step: 50, default: 950 },
+      insurers: {
+        1: 'Hollard Zambia',
+        2: 'Madison Zambia',
+        3: 'Professional Insurance',
+        4: 'Prudential Zambia',
+        5: 'Sanlam Zambia',
+        6: 'Phoenix Assurance'
+      }
+    }
+  };
+  const countryCode = localStorage.getItem('nxtinsureCountry') || 'UG';
+  const currentCountry = countryConfigs[countryCode] || countryConfigs.UG;
+  const countryName = currentCountry.country;
   let selections = { category: '', sub: '', priority: '' };
   let resultsView = 'grid';
 
@@ -653,12 +718,12 @@
   };
 
   const mockProducts = [
-    { id: 1, cat: 'health', title: 'Jubilee J-Care Junior', insurer: 'Jubilee Health', price: '12,000', badge: 'Child Cover', tags: ['opd', 'dental', 'optical'], coverScore: 92, claimsScore: 82, ipf: true, features: ['OPD, dental and optical options', 'Built for children', 'Online quote in minutes'] },
-    { id: 2, cat: 'health', title: 'Liberty Health Lite', insurer: 'Liberty', price: '28,000', badge: 'Popular', tags: ['opd'], coverScore: 84, claimsScore: 78, ipf: true, features: ['UGX 5M Inpatient', '300+ Hospitals', 'No waiting period'] },
-    { id: 3, cat: 'health', title: 'Sanlam Hospital Cash', insurer: 'Sanlam', price: '8,500', badge: 'Best Value', tags: ['opd'], coverScore: 72, claimsScore: 94, ipf: true, features: ['UGX 100k daily cash', 'Covers accident & illness', 'Paid in 48 hours'] },
-    { id: 4, cat: 'health', title: 'UAP Family Shield', insurer: 'UAP Old Mutual', price: '45,000', badge: 'Premium', tags: ['opd', 'dental', 'optical'], coverScore: 96, claimsScore: 76, ipf: false, features: ['Full Family Cover', 'Optical & Dental', 'Global coverage'] },
-    { id: 5, cat: 'motor', title: 'Britam Third Party', insurer: 'Britam', price: '42,500', badge: 'Mandatory', tags: [], coverScore: 76, claimsScore: 84, ipf: true, features: ['Legal Liability', 'Property Damage', 'Instant Sticker'] },
-    { id: 6, cat: 'device', title: 'ICEA Screen Protect', insurer: 'ICEA Lion', price: '3,200', badge: 'New', tags: [], coverScore: 70, claimsScore: 88, ipf: false, features: ['All-risk screen cover', 'Free pickup/delivery', '3-day repair turnaround'] }
+    { id: 1, cat: 'health', title: 'Jubilee J-Care Junior', insurer: 'Jubilee Health', price: 12000, badge: 'Child Cover', tags: ['opd', 'dental', 'optical'], coverScore: 92, claimsScore: 82, ipf: true, features: ['OPD, dental and optical options', 'Built for children', 'Online quote in minutes'] },
+    { id: 2, cat: 'health', title: 'Liberty Health Lite', insurer: 'Liberty', price: 28000, badge: 'Popular', tags: ['opd'], coverScore: 84, claimsScore: 78, ipf: true, features: ['5M inpatient limit', '300+ hospitals', 'No waiting period'] },
+    { id: 3, cat: 'health', title: 'Sanlam Hospital Cash', insurer: 'Sanlam', price: 8500, badge: 'Best Value', tags: ['opd'], coverScore: 72, claimsScore: 94, ipf: true, features: ['Daily hospital cash benefit', 'Covers accident and illness', 'Paid in 48 hours'] },
+    { id: 4, cat: 'health', title: 'UAP Family Shield', insurer: 'UAP Old Mutual', price: 45000, badge: 'Premium', tags: ['opd', 'dental', 'optical'], coverScore: 96, claimsScore: 76, ipf: false, features: ['Full family cover', 'Dental and optical included', 'Regional coverage'] },
+    { id: 5, cat: 'motor', title: 'Britam Third Party', insurer: 'Britam', price: 42500, badge: 'Mandatory', tags: [], coverScore: 76, claimsScore: 84, ipf: true, features: ['Legal liability', 'Property damage', 'Instant sticker'] },
+    { id: 6, cat: 'device', title: 'ICEA Screen Protect', insurer: 'ICEA Lion', price: 3200, badge: 'New', tags: [], coverScore: 70, claimsScore: 88, ipf: false, features: ['All-risk screen cover', 'Free pickup and delivery', '3-day repair turnaround'] }
   ];
   let selectedCompareIds = [];
 
@@ -692,7 +757,7 @@
       /(crop|crops)/.test(text) ? 'crops' :
       /(livestock|cow|cattle)/.test(text) ? 'livestock' :
       /(international|abroad|outside)/.test(text) ? 'intl' :
-      /(uganda|local|domestic)/.test(text) ? 'domestic' : '';
+      /(uganda|kenya|zambia|local|domestic)/.test(text) ? 'domestic' : '';
 
     const priority =
       /(cheap|affordable|lowest|budget|price)/.test(text) ? 'price' :
@@ -765,12 +830,55 @@
     document.getElementById('progress').style.width = ((stepNum - 1) * 33.33) + '%';
   }
 
-  function formatUGX(value) {
-    return `UGX ${Math.round(value).toLocaleString('en-US')}`;
+  function convertAmount(value) {
+    return value * currentCountry.multiplier;
   }
 
-  function parseUGX(value) {
-    return Number(String(value).replace(/,/g, '')) || 0;
+  function formatMoney(value) {
+    return `${currentCountry.currency} ${Math.round(value).toLocaleString('en-US')}`;
+  }
+
+  function compactMoney(value, withCurrency = true) {
+    const rounded = Math.round(value);
+    let output = '';
+    if (rounded >= 1000000) {
+      const millions = rounded / 1000000;
+      output = `${Number.isInteger(millions) ? millions.toFixed(0) : millions.toFixed(1)}M`;
+    } else if (rounded >= 1000) {
+      output = `${Math.round(rounded / 1000)}k`;
+    } else {
+      output = `${rounded}`;
+    }
+    return withCurrency ? `${currentCountry.currency} ${output}` : output;
+  }
+
+  function getLocalizedProducts() {
+    return mockProducts.map(product => ({
+      ...product,
+      insurer: currentCountry.insurers[product.id] || product.insurer
+    }));
+  }
+
+  function configureCountryContext() {
+    const budget = currentCountry.budget;
+    const budgetInput = document.getElementById('calc-budget');
+    budgetInput.min = budget.min;
+    budgetInput.max = budget.max;
+    budgetInput.step = budget.step;
+    budgetInput.value = budget.default;
+    document.getElementById('budget-min').innerText = compactMoney(budget.min);
+    document.getElementById('budget-label').innerText = formatMoney(budget.default);
+    document.getElementById('hero-sub-country').innerText = `Choose a category to discover regulated products built for ${countryName}.`;
+    document.getElementById('country-select').value = countryCode;
+    renderInsurerFilters();
+  }
+
+  function renderInsurerFilters() {
+    const insurers = getLocalizedProducts().filter(product => product.cat === 'health').map(product => product.insurer);
+    document.getElementById('insurer-filter-group').innerHTML = insurers.map(insurer => `
+      <label class="filter-check"><input class="insurer-input" type="checkbox" value="${insurer}" checked> ${insurer}</label>
+    `).join('');
+    document.querySelectorAll('.insurer-input').forEach(input => input.addEventListener('change', renderProducts));
   }
 
   function getQuoteState() {
@@ -793,7 +901,7 @@
     const coverFactor = { child: 0.92, self: 1, family: 1.42, parents: 1.58 }[quote.cover] || 1;
     const ageFactor = quote.age > 55 ? 1.24 : quote.age > 35 ? 1.1 : quote.age < 12 ? 0.96 : 1;
     const benefitAddOn = quote.benefits.reduce((sum, benefit) => sum + ({ opd: 0, dental: 3000, optical: 2500 }[benefit] || 0), 0);
-    return Math.max(2500, (parseUGX(product.price) * tierFactor * coverFactor * ageFactor) + benefitAddOn);
+    return Math.max(currentCountry.budget.min / 2, (convertAmount(product.price) * tierFactor * coverFactor * ageFactor) + convertAmount(benefitAddOn));
   }
 
   function syncCalculatorFromSelection() {
@@ -806,9 +914,9 @@
   function renderProducts() {
     const quote = getQuoteState();
     document.querySelector('.listing-main').classList.toggle('list-view', resultsView === 'list');
-    document.getElementById('budget-label').innerText = formatUGX(quote.budget);
+    document.getElementById('budget-label').innerText = formatMoney(quote.budget);
 
-    let displayList = mockProducts
+    let displayList = getLocalizedProducts()
       .filter(product => product.cat === selections.category || selections.category === '')
       .filter(product => selections.category !== 'health' || quote.insurers.includes(product.insurer))
       .filter(product => selections.category !== 'health' || quote.benefits.every(benefit => product.tags.includes(benefit)))
@@ -849,7 +957,7 @@
           Compare
         </label>
         <div class="product-footer">
-          <div class="price">${formatUGX(product.calculatedPremium)}<small>/mo estimated</small></div>
+          <div class="price">${formatMoney(product.calculatedPremium)}<small>/mo estimated</small></div>
           <a class="btn btn-dark" href="pdp.html?product=${product.id}">View Details</a>
         </div>
       </article>
@@ -877,7 +985,7 @@
 
   function updateCompareTray() {
     const tray = document.getElementById('compare-tray');
-    const selectedProducts = selectedCompareIds.map(id => mockProducts.find(product => product.id === id)).filter(Boolean);
+    const selectedProducts = selectedCompareIds.map(id => getLocalizedProducts().find(product => product.id === id)).filter(Boolean);
     tray.classList.toggle('visible', selectedProducts.length > 0);
     document.getElementById('tray-count').innerText = `${selectedProducts.length} plan${selectedProducts.length === 1 ? '' : 's'} selected`;
     document.getElementById('tray-bubbles').innerHTML = selectedProducts.map(product => {
@@ -919,7 +1027,7 @@
       renderProducts();
     });
   });
-  document.querySelectorAll('.filter-input, .insurer-input').forEach(input => {
+  document.querySelectorAll('.filter-input').forEach(input => {
     input.addEventListener('change', renderProducts);
   });
   document.getElementById('clear-compare').addEventListener('click', () => {
@@ -964,7 +1072,7 @@
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-UG';
+    recognition.lang = currentCountry.locale || 'en-UG';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     mic.classList.add('listening');
@@ -992,6 +1100,11 @@
       document.getElementById('chat-reply').innerText = button.dataset.reply;
     });
   });
+  document.getElementById('country-select').addEventListener('change', event => {
+    localStorage.setItem('nxtinsureCountry', event.target.value);
+    window.location.reload();
+  });
+  configureCountryContext();
 </script>
 </body>
 </html>
