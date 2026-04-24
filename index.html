@@ -215,6 +215,56 @@
     font-size: 12px;
     font-weight: 700;
   }
+  .ai-assistant-shell {
+    width: min(680px, calc(100% - 32px));
+    margin: 0 auto 22px;
+    display: grid;
+    gap: 10px;
+  }
+  .ai-turn {
+    padding: 12px 14px;
+    border-radius: 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: left;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.06);
+  }
+  .ai-turn.user {
+    margin-left: auto;
+    max-width: 80%;
+    background: var(--primary);
+    color: white;
+    border-bottom-right-radius: 6px;
+  }
+  .ai-turn.bot {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    border-bottom-left-radius: 6px;
+  }
+  .ai-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ai-action-btn {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.8);
+    color: var(--ink);
+    padding: 9px 12px;
+    font: 800 11px var(--font-sans);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ai-action-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #fff7f7;
+  }
 
   @keyframes pulseMic {
     0%, 100% { box-shadow: 0 0 0 0 rgba(227,28,35,0.26); }
@@ -310,6 +360,18 @@
   .view-btn { border: 0; border-radius: 9px; padding: 8px 10px; background: transparent; color: var(--ink-light); font: 850 12px var(--font-sans); cursor: pointer; }
   .view-btn.active { background: var(--primary); color: white; }
   .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 24px; }
+  .listing-empty-state {
+    padding: 28px;
+    border: 1px dashed var(--border);
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fff, #fff8f8);
+    display: grid;
+    gap: 12px;
+  }
+  .listing-empty-state[hidden] { display: none; }
+  .listing-empty-state strong { font-size: 20px; letter-spacing: -0.03em; }
+  .listing-empty-state p { color: var(--ink-light); font-size: 14px; line-height: 1.7; max-width: 560px; }
+  .listing-empty-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .product-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; transition: 0.2s; }
   .product-card:hover,
   .product-card.is-selected { border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -458,6 +520,15 @@
 
     <div class="guide-container">
       <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+      <div class="ai-assistant-shell" id="ai-assistant-shell" aria-live="polite">
+        <div class="ai-turn user" id="ai-user-turn" hidden></div>
+        <div class="ai-turn bot" id="ai-bot-turn">Tell me what you want to protect. I will ask follow-up questions only when needed, and you can always keep talking, choose from options, or jump to listing first.</div>
+        <div class="ai-actions">
+          <button class="ai-action-btn" id="ai-talk-btn" type="button">Talk</button>
+          <button class="ai-action-btn" id="ai-choose-btn" type="button">Choose from options</button>
+          <button class="ai-action-btn" id="ai-listing-btn" type="button">Go to listing</button>
+        </div>
+      </div>
 
       <!-- STEP 1 -->
       <div class="step active" id="step-1">
@@ -589,6 +660,14 @@
                 <button class="view-btn active" type="button" data-view="grid">Grid</button>
                 <button class="view-btn" type="button" data-view="list">List</button>
               </div>
+            </div>
+          </div>
+          <div class="listing-empty-state" id="listing-empty-state" hidden>
+            <strong>Finish the calculator to unlock plans.</strong>
+            <p>You chose to go straight to listing. We will keep products hidden until you confirm or adjust the calculator, so the first results you see are based on your own inputs.</p>
+            <div class="listing-empty-actions">
+              <button class="btn btn-dark" id="unlock-listing-quotes" type="button">Use current calculator</button>
+              <button class="btn btn-ghost" id="back-to-assistant" type="button">Back to assistant</button>
             </div>
           </div>
           <div class="products-grid" id="products-container">
@@ -744,12 +823,51 @@
     { id: 6, cat: 'device', title: 'ICEA Screen Protect', insurer: 'ICEA Lion', price: 3200, badge: 'New', tags: [], coverScore: 70, claimsScore: 88, ipf: false, features: ['All-risk screen cover', 'Free pickup and delivery', '3-day repair turnaround'] }
   ];
   let selectedCompareIds = [];
+  let listingLocked = false;
+  let calculatorConfirmed = true;
+
+  function findOptionLabel(category, id) {
+    const option = (cleanStep2Config[category]?.options || []).find(item => item.id === id);
+    return option ? option.label : id;
+  }
+
+  function categoryLabel(category) {
+    if (!category) return 'insurance';
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  }
+
+  function priorityLabel(priority) {
+    return priority === 'price' ? 'lowest price' : priority === 'cover' ? 'maximum cover' : priority === 'claims' ? 'fastest claims' : 'your priority';
+  }
+
+  function updateAiAssistant(assistantText, userText = '') {
+    const userTurn = document.getElementById('ai-user-turn');
+    const botTurn = document.getElementById('ai-bot-turn');
+    if (userText) {
+      userTurn.hidden = false;
+      userTurn.innerText = userText;
+    }
+    botTurn.innerText = assistantText;
+  }
+
+  function updateAssistantForCurrentStep(messageOverride = '') {
+    if (!selections.category) {
+      updateAiAssistant(messageOverride || 'Tell me what you want to protect. You can keep talking, choose a category below, or jump to listing first.');
+      return;
+    }
+    if (!selections.sub) {
+      updateAiAssistant(messageOverride || `${categoryLabel(selections.category)} sounds right. ${cleanStep2Config[selections.category].sub} You can answer by talking, choose below, or go to listing first.`);
+      return;
+    }
+    updateAiAssistant(messageOverride || `Got it: ${findOptionLabel(selections.category, selections.sub)}. What matters most: lowest price, maximum cover, or fastest claims?`);
+  }
 
   function resetDiscoverySteps() {
     document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
     document.getElementById('step-1').classList.add('active');
     document.getElementById('progress').style.width = '33.33%';
     selections = { category: '', sub: '', priority: '' };
+    updateAssistantForCurrentStep();
   }
 
   function inferIntent(query) {
@@ -796,38 +914,60 @@
       return;
     }
 
+    hint.innerText = '';
     let intent = inferIntent(value);
-    if (!intent.category) {
-      hint.innerText = 'I can guide health, motor, device, life, agriculture, or travel cover. Try one of those.';
+
+    if (!selections.category) {
+      if (!intent.category) {
+        updateAiAssistant('I can guide health, motor, device, life, agriculture, or travel cover. Keep talking, choose from the options below, or go to listing first and fill the calculator there.', value);
+        return;
+      }
+      if (intent.sub && !cleanStep2Config[intent.category].options.some(option => option.id === intent.sub)) {
+        intent = { ...intent, sub: '' };
+      }
+
+      resetDiscoverySteps();
+      nextStep(1, intent.category, true);
+
+      if (intent.sub) {
+        nextStep(2, intent.sub, true);
+        if (intent.priority) {
+          updateAiAssistant(`I understood ${findOptionLabel(intent.category, intent.sub)} and heard you care about ${priorityLabel(intent.priority)}. You can say that again, choose below, or go straight to listing first.`, value);
+        } else {
+          updateAiAssistant(`I matched this to ${findOptionLabel(intent.category, intent.sub)}. What matters most next: lowest price, maximum cover, or fastest claims?`, value);
+        }
+        return;
+      }
+
+      updateAiAssistant(`I found ${categoryLabel(intent.category)} cover. ${cleanStep2Config[intent.category].sub} You can answer by talking, choose below, or go to listing first.`, value);
       return;
     }
-    if (intent.sub && !cleanStep2Config[intent.category].options.some(option => option.id === intent.sub)) {
-      intent = { ...intent, sub: '' };
+
+    if (!selections.sub) {
+      const validSub = intent.sub && cleanStep2Config[selections.category].options.some(option => option.id === intent.sub) ? intent.sub : '';
+      if (!validSub) {
+        updateAiAssistant(`You're exploring ${categoryLabel(selections.category)} cover. Tell me who or what it is for, choose from the options below, or go to listing first.`, value);
+        return;
+      }
+      nextStep(2, validSub, true);
+      if (intent.priority) {
+        updateAiAssistant(`Perfect. I have ${findOptionLabel(selections.category, validSub)} and ${priorityLabel(intent.priority)}. Say that again or choose it below and I'll rank the plans.`, value);
+      } else {
+        updateAiAssistant(`Great, ${findOptionLabel(selections.category, validSub)}. What matters most: lowest price, maximum cover, or fastest claims?`, value);
+      }
+      return;
     }
 
-    resetDiscoverySteps();
-
-    if (intent.sub && intent.priority) {
-      selections.category = intent.category;
-      selections.sub = intent.sub;
+    if (intent.priority) {
+      updateAiAssistant(`Perfect. I'll rank ${categoryLabel(selections.category)} plans for ${findOptionLabel(selections.category, selections.sub)} by ${priorityLabel(intent.priority)}.`, value);
       finish(intent.priority);
       return;
     }
 
-    nextStep(1, intent.category);
-
-    if (intent.sub) {
-      nextStep(2, intent.sub);
-      hint.innerText = 'Good match. Pick what matters most and I will rank the plans.';
-      return;
-    }
-
-    hint.innerText = intent.priority
-      ? `I found ${intent.category} cover. Choose one detail first, then we will rank by ${intent.priority}.`
-      : `I found ${intent.category} cover. Choose one detail and I will narrow it down.`;
+    updateAiAssistant('Tell me what matters most: lowest price, maximum cover, or fastest claims. You can also choose below or go to listing first.', value);
   }
 
-  function nextStep(stepNum, val) {
+  function nextStep(stepNum, val, skipAssistantUpdate = false) {
     if (stepNum === 1) {
       selections.category = val;
       const cfg = cleanStep2Config[val];
@@ -840,12 +980,16 @@
     document.getElementById(`step-${stepNum}`).classList.remove('active');
     document.getElementById(`step-${stepNum + 1}`).classList.add('active');
     document.getElementById('progress').style.width = ((stepNum + 1) * 33.33) + '%';
+    if (!skipAssistantUpdate) updateAssistantForCurrentStep();
   }
 
   function prevStep(stepNum) {
     document.getElementById(`step-${stepNum}`).classList.remove('active');
     document.getElementById(`step-${stepNum - 1}`).classList.add('active');
     document.getElementById('progress').style.width = ((stepNum - 1) * 33.33) + '%';
+    if (stepNum === 2) selections.category = '';
+    if (stepNum === 3) selections.sub = '';
+    updateAssistantForCurrentStep();
   }
 
   function convertAmount(value) {
@@ -933,6 +1077,19 @@
     const quote = getQuoteState();
     document.querySelector('.listing-main').classList.toggle('list-view', resultsView === 'list');
     document.getElementById('budget-label').innerText = formatMoney(quote.budget);
+    const emptyState = document.getElementById('listing-empty-state');
+    const productsContainer = document.getElementById('products-container');
+
+    if (listingLocked && !calculatorConfirmed) {
+      document.getElementById('result-count').innerText = '0';
+      emptyState.hidden = false;
+      productsContainer.innerHTML = '';
+      selectedCompareIds = [];
+      updateCompareTray();
+      return;
+    }
+
+    emptyState.hidden = true;
 
     let displayList = getLocalizedProducts()
       .filter(product => product.cat === selections.category || selections.category === '')
@@ -960,7 +1117,7 @@
       return;
     }
 
-    document.getElementById('products-container').innerHTML = displayList.map(product => `
+    productsContainer.innerHTML = displayList.map(product => `
       <article class="product-card ${selectedCompareIds.includes(product.id) ? 'is-selected' : ''}">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px">
           <span class="product-insurer">${product.insurer}</span>
@@ -1012,29 +1169,44 @@
     }).join('');
   }
 
-  function finish(priority) {
-    selections.priority = priority;
-    
-    // UI Transitions
+  function updateListingHeader(priority = selections.priority || 'price') {
+    const title = selections.category ? categoryLabel(selections.category) : 'Insurance';
+    document.getElementById('listing-title').innerHTML = `The best <em>${title}</em> plans for you.`;
+    document.getElementById('chips-container').innerHTML = `
+      <div class="chip active">${title} Insurance</div>
+      <div class="chip">${selections.sub ? findOptionLabel(selections.category, selections.sub) : 'All'}</div>
+      <div class="chip">Priority: ${priorityLabel(priority)}</div>
+    `;
+  }
+
+  function openListing(lockCalculator = false) {
+    listingLocked = lockCalculator;
+    calculatorConfirmed = !lockCalculator;
+    selectedCompareIds = [];
     document.getElementById('discovery-section').style.display = 'none';
     document.getElementById('listing-view').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Render Listing Data
-    const title = selections.category.charAt(0).toUpperCase() + selections.category.slice(1);
-    document.getElementById('listing-title').innerHTML = `The best <em>${title}</em> plans for you.`;
-    
-    document.getElementById('chips-container').innerHTML = `
-      <div class="chip active">${title} Insurance</div>
-      <div class="chip">${selections.sub || 'All'}</div>
-      <div class="chip">Priority: ${priority}</div>
-    `;
-
+    updateListingHeader();
     syncCalculatorFromSelection();
     renderProducts();
   }
 
-  ['calc-cover', 'calc-age', 'calc-tier', 'calc-budget', 'filter-ipf', 'sort-select'].forEach(id => {
+  function finish(priority) {
+    selections.priority = priority;
+    openListing(false);
+  }
+
+  ['calc-cover', 'calc-age', 'calc-tier', 'calc-budget'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (listingLocked) calculatorConfirmed = true;
+      renderProducts();
+    });
+    document.getElementById(id).addEventListener('change', () => {
+      if (listingLocked) calculatorConfirmed = true;
+      renderProducts();
+    });
+  });
+  ['filter-ipf', 'sort-select'].forEach(id => {
     document.getElementById(id).addEventListener('input', renderProducts);
     document.getElementById(id).addEventListener('change', renderProducts);
   });
@@ -1076,6 +1248,30 @@
       document.getElementById('ai-search-input').value = chip.dataset.query;
       guideFromSearch(chip.dataset.query);
     });
+  });
+  document.getElementById('ai-talk-btn').addEventListener('click', () => {
+    document.getElementById('ai-search-input').focus();
+    updateAssistantForCurrentStep('Keep talking. I will only ask the next question that matters.');
+  });
+  document.getElementById('ai-choose-btn').addEventListener('click', () => {
+    const activeStep = document.querySelector('.step.active');
+    activeStep?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    updateAssistantForCurrentStep('Choose from the options below whenever that feels easier than typing.');
+  });
+  document.getElementById('ai-listing-btn').addEventListener('click', () => {
+    updateAiAssistant('Opening listing now. Plans will stay hidden until you confirm or adjust the calculator.', document.getElementById('ai-search-input').value.trim());
+    openListing(true);
+  });
+  document.getElementById('unlock-listing-quotes').addEventListener('click', () => {
+    calculatorConfirmed = true;
+    listingLocked = false;
+    renderProducts();
+  });
+  document.getElementById('back-to-assistant').addEventListener('click', () => {
+    document.getElementById('listing-view').style.display = 'none';
+    document.getElementById('discovery-section').style.display = 'flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateAssistantForCurrentStep('You are back in the assistant. Keep talking, choose below, or jump to listing again.');
   });
 
   document.getElementById('mic-btn').addEventListener('click', () => {
@@ -1123,6 +1319,7 @@
     window.location.reload();
   });
   configureCountryContext();
+  updateAssistantForCurrentStep();
 </script>
 </body>
 </html>
