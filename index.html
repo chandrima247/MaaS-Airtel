@@ -522,7 +522,7 @@
       <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
       <div class="ai-assistant-shell" id="ai-assistant-shell" aria-live="polite">
         <div class="ai-turn user" id="ai-user-turn" hidden></div>
-        <div class="ai-turn bot" id="ai-bot-turn">Tell me what you want to protect. I will ask follow-up questions only when needed, and you can always keep talking, choose from options, or jump to listing first.</div>
+        <div class="ai-turn bot" id="ai-bot-turn" hidden></div>
         <div class="ai-actions">
           <button class="ai-action-btn" id="ai-talk-btn" type="button">Talk</button>
           <button class="ai-action-btn" id="ai-choose-btn" type="button">Choose from options</button>
@@ -847,6 +847,7 @@
       userTurn.hidden = false;
       userTurn.innerText = userText;
     }
+    botTurn.hidden = !assistantText;
     botTurn.innerText = assistantText;
   }
 
@@ -1319,7 +1320,6 @@
     window.location.reload();
   });
   configureCountryContext();
-  updateAssistantForCurrentStep();
 </script>
 </body>
 </html>
