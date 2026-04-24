@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NxtInsure - Approach 1: Voice AI Entry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #101010;
+    --accent: #e31c23;
+    --ink: #17181a;
+    --ink-light: #6b7280;
+    --line: #e5e7eb;
+    --bg: #ffffff;
+    --bg-soft: #f7f7f8;
+    --card: rgba(255,255,255,0.92);
+    --shadow: 0 24px 70px rgba(0,0,0,0.08);
+    --radius: 20px;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--ink); background: linear-gradient(180deg, #fff 0%, #fbfbfc 100%); }
+  .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+  nav { height: 78px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.92); backdrop-filter: blur(18px); position: sticky; top: 0; z-index: 30; }
+  .logo { font-weight: 900; font-size: 22px; letter-spacing: -0.04em; color: var(--primary); text-decoration: none; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; justify-content: center; gap: 8px; }
+  .nav-links a { text-decoration: none; color: var(--ink-light); font-weight: 700; padding: 10px 14px; border-radius: 999px; }
+  .nav-links a.active, .nav-links a:hover { color: var(--ink); background: var(--bg-soft); }
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
+  .country-select, .btn, .ghost-btn, .mini-btn, .chip, .follow-chip {
+    border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink);
+    font: 700 13px var(--font-sans); cursor: pointer;
+  }
+  .country-select { padding: 10px 14px; }
+  .airtel-logo { height: 38px; width: auto; object-fit: contain; }
+  .btn { padding: 12px 20px; border-color: var(--primary); background: var(--primary); color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .ghost-btn { padding: 12px 18px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .hero { padding: 44px 0 28px; }
+  .eyebrow { display: inline-flex; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(227,28,35,0.18); background: #fff4f5; color: var(--accent); font-size: 11px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+  .hero-grid { margin-top: 24px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 26px; align-items: start; }
+  h1 { font-size: clamp(38px, 6vw, 72px); line-height: 0.95; letter-spacing: -0.05em; margin: 18px 0 16px; }
+  h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+  .lede { max-width: 650px; color: var(--ink-light); font-size: 18px; line-height: 1.7; }
+  .hero-points { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero-points span { padding: 9px 12px; border-radius: 999px; background: white; border: 1px solid var(--line); font-size: 12px; font-weight: 700; color: var(--ink-light); }
+  .visual-card, .chat-shell, .rail-card, .result-card, .insight-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .visual-card { padding: 18px; position: relative; overflow: hidden; min-height: 560px; }
+  .visual-card::before { content: ""; position: absolute; inset: -30% auto auto -10%; width: 220px; height: 220px; background: radial-gradient(circle, rgba(227,28,35,0.12), transparent 72%); }
+  .visual-card::after { content: ""; position: absolute; right: -40px; bottom: -40px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(0,0,0,0.08), transparent 72%); }
+  .chat-shell { padding: 18px; position: relative; z-index: 1; }
+  .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .chat-head strong { font-size: 18px; letter-spacing: -0.03em; }
+  .chat-head small { color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  .mode-toggle { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line); }
+  .mode-toggle button { border: 0; background: transparent; padding: 8px 12px; border-radius: 999px; font: 800 12px var(--font-sans); color: var(--ink-light); cursor: pointer; }
+  .mode-toggle button.active { background: white; color: var(--ink); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+  .bubble-stack { display: grid; gap: 10px; margin: 16px 0; }
+  .bubble { max-width: 82%; padding: 13px 15px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+  .bubble.user { margin-left: auto; background: var(--primary); color: white; border-bottom-right-radius: 6px; }
+  .bubble.bot { background: #fff5f5; color: var(--ink); border: 1px solid rgba(227,28,35,0.15); border-bottom-left-radius: 6px; }
+  .input-row { display: flex; gap: 10px; margin-top: 14px; }
+  .input-row input { flex: 1; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; font: 600 14px var(--font-sans); outline: 0; }
+  .input-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(227,28,35,0.08); }
+  .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip, .follow-chip, .mini-btn { padding: 9px 12px; }
+  .chip:hover, .follow-chip:hover, .mini-btn:hover, .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .followups { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+  .rail-card { padding: 16px; }
+  .rail-card h3 { font-size: 15px; margin-bottom: 10px; letter-spacing: -0.02em; }
+  .extract-list { display: grid; gap: 10px; }
+  .extract-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+  .extract-row span:first-child { color: var(--ink-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+  .extract-row strong { color: var(--ink); }
+  .decision-box { padding: 16px; border-radius: 18px; background: linear-gradient(135deg, #fff 0%, #fff3f4 100%); border: 1px solid rgba(227,28,35,0.14); }
+  .decision-box p { color: var(--ink-light); font-size: 14px; margin-top: 6px; line-height: 1.6; }
+  .decision-box strong { font-size: 16px; }
+  .result-list { display: grid; gap: 14px; margin-top: 18px; }
+  .result-card { padding: 18px; display: grid; grid-template-columns: 1fr auto; gap: 14px; }
+  .result-card small { color: var(--ink-light); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .result-card h4 { margin-top: 7px; font-size: 20px; letter-spacing: -0.03em; }
+  .result-card p { margin-top: 8px; color: var(--ink-light); font-size: 14px; max-width: 420px; }
+  .result-price { text-align: right; }
+  .result-price strong { display: block; font-size: 28px; letter-spacing: -0.04em; }
+  .result-price span { color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .insight-strip { padding: 20px 0 70px; }
+  .insight-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .insight-card { padding: 20px; }
+  .insight-card h3 { font-size: 18px; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .insight-card p { color: var(--ink-light); font-size: 14px; line-height: 1.7; }
+  .footer-bar { padding: 22px 0 36px; color: var(--ink-light); font-size: 13px; }
+  @media (max-width: 1020px) {
+    .hero-grid, .insight-grid, .grid-two { grid-template-columns: 1fr; }
+    .visual-card { min-height: auto; }
+  }
+  @media (max-width: 760px) {
+    nav { grid-template-columns: 1fr; height: auto; padding: 14px 0; }
+    .nav-links { justify-content: flex-start; overflow: auto; }
+    .nav-actions { justify-content: flex-start; flex-wrap: wrap; }
+    .result-card { grid-template-columns: 1fr; }
+    .result-price { text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <nav class="container">
+    <a class="logo" href="index.html">Nxt<span>Insure</span></a>
+    <div class="nav-links">
+      <a class="active" href="approach-voice.html">Voice Entry</a>
+      <a href="approach-guided.html">Guided Stepper</a>
+      <a href="approach-calculator.html">Direct Calculator</a>
+      <a href="index.html">Current Hybrid</a>
+    </div>
+    <div class="nav-actions">
+      <select class="country-select" id="countrySelect" aria-label="Select country">
+        <option value="UG">Uganda 🇺🇬</option>
+        <option value="KE">Kenya 🇰🇪</option>
+        <option value="ZM">Zambia 🇿🇲</option>
+      </select>
+      <img class="airtel-logo" src="https://i0.wp.com/png.co.ke/wp-content/uploads/2025/02/Airtel-Money.png?fit=1500,1247&ssl=1" alt="Airtel Money logo">
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Approach 1 · Voice / Open Conversational AI</span>
+          <h1>Let the user <em>say it naturally</em>, then route fast.</h1>
+          <p class="lede">This version treats AI as the entry layer. It listens for high-intent requests like “I need health insurance for my child”, extracts the essentials, and either jumps straight to a filtered listing or asks only the missing follow-ups.</p>
+          <div class="hero-points">
+            <span>Best for confident users</span>
+            <span>Great differentiation</span>
+            <span>Needs confidence scoring</span>
+          </div>
+
+          <div class="result-list" id="voiceResults">
+            <article class="result-card">
+              <div>
+                <small id="flowBadge">Direct route</small>
+                <h4 id="productTitle">Jubilee J-Care Junior</h4>
+                <p id="productCopy">Child-focused medical cover with OPD, dental, optical options and fast digital onboarding.</p>
+                <div class="cta-row">
+                  <a class="btn" href="index.html#listing-view">Open pre-filtered listing</a>
+                  <a class="ghost-btn" href="pdp.html?product=1">View product detail</a>
+                </div>
+              </div>
+              <div class="result-price">
+                <strong id="productPrice">UGX 12,000</strong>
+                <span id="productMeta">Estimated from monthly quote</span>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="visual-card">
+          <div class="chat-shell">
+            <div class="chat-head">
+              <div>
+                <strong>NxtInsure AI intake</strong>
+                <small id="marketLabel">Uganda marketplace context</small>
+              </div>
+              <div class="mode-toggle" role="tablist" aria-label="Voice modes">
+                <button class="active" data-mode="enough" type="button">Enough info</button>
+                <button data-mode="followup" type="button">Needs follow-up</button>
+              </div>
+            </div>
+
+            <div class="bubble-stack" id="chatStack">
+              <div class="bubble user" id="userBubble">I need health insurance for my child.</div>
+              <div class="bubble bot" id="botBubble">I found child-focused health plans, led by J-Junior. I can take you straight to quotes because I already know the category, segment, and intent.</div>
+            </div>
+
+            <div class="input-row">
+              <input id="voiceInput" type="text" value="I need health insurance for my child" aria-label="Voice transcript">
+              <button class="btn" id="runVoice" type="button">Analyze</button>
+            </div>
+            <div class="suggestions">
+              <button class="chip" type="button" data-query="I need health insurance for my child">Child health</button>
+              <button class="chip" type="button" data-query="I want cheap cover for my family">Family budget cover</button>
+              <button class="chip" type="button" data-query="Hospital cash for my mother">Parent hospital cash</button>
+              <button class="chip" type="button" data-query="Comprehensive health cover for a family of four">Full family medical</button>
+            </div>
+
+            <div class="grid-two">
+              <div class="rail-card">
+                <h3>What AI extracts</h3>
+                <div class="extract-list">
+                  <div class="extract-row"><span>Who</span><strong id="extractWho">Child</strong></div>
+                  <div class="extract-row"><span>Type</span><strong id="extractType">Health</strong></div>
+                  <div class="extract-row"><span>Intent</span><strong id="extractIntent">Insurance</strong></div>
+                  <div class="extract-row"><span>Signal</span><strong id="extractConfidence">High confidence</strong></div>
+                </div>
+              </div>
+
+              <div class="rail-card">
+                <h3>Decision engine</h3>
+                <div class="decision-box">
+                  <strong id="decisionTitle">Case A · Go directly to listing</strong>
+                  <p id="decisionCopy">The system has enough structured data to pre-filter products and show quotes immediately. No extra question is necessary.</p>
+                </div>
+                <div class="followups" id="followups" hidden>
+                  <button class="follow-chip" type="button">Ask age</button>
+                  <button class="follow-chip" type="button">Ask coverage level</button>
+                  <button class="follow-chip" type="button">Ask budget</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insight-strip">
+      <div class="container insight-grid">
+        <article class="insight-card">
+          <h3>Why this works</h3>
+          <p>It feels modern, personalized, and dramatically faster when the user arrives with a clear need. It is strongest as the top funnel for high-intent traffic.</p>
+        </article>
+        <article class="insight-card">
+          <h3>What can go wrong</h3>
+          <p>Free-form AI can over-assume. That is why the system should only skip ahead when confidence is strong and fall back to guided questions when it is not.</p>
+        </article>
+        <article class="insight-card">
+          <h3>Where it fits</h3>
+          <p>Use it as the front door, not the whole house. This page shows the entry layer; the current hybrid journey remains the primary conversion path.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer-bar">
+    <div class="container">Built as Variant 1 on top of the current NxtInsure journey.</div>
+  </div>
+
+<script>
+  const countryConfigs = {
+    UG: { name: "Uganda", currency: "UGX", multiplier: 1 },
+    KE: { name: "Kenya", currency: "KES", multiplier: 0.036 },
+    ZM: { name: "Zambia", currency: "ZMW", multiplier: 0.0075 }
+  };
+
+  const productTemplates = {
+    child: {
+      title: "Jubilee J-Care Junior",
+      copy: "Child-focused medical cover with OPD, dental, optical options and fast digital onboarding.",
+      price: 12000
+    },
+    family: {
+      title: "Jubilee J-Care Family",
+      copy: "Balanced medical cover for families with inpatient, OPD and optional dental and optical upgrades.",
+      price: 42000
+    },
+    parent: {
+      title: "Hospital Cash Plus",
+      copy: "Lower-cost hospital cash protection designed for essential illness and accident support.",
+      price: 18000
+    }
+  };
+
+  const currentCountryCode = localStorage.getItem("nxtinsureCountry") || "UG";
+  const currentCountry = countryConfigs[currentCountryCode] || countryConfigs.UG;
+
+  const modeButtons = Array.from(document.querySelectorAll("[data-mode]"));
+  const queryButtons = Array.from(document.querySelectorAll("[data-query]"));
+  const refs = {
+    countrySelect: document.getElementById("countrySelect"),
+    marketLabel: document.getElementById("marketLabel"),
+    voiceInput: document.getElementById("voiceInput"),
+    runVoice: document.getElementById("runVoice"),
+    userBubble: document.getElementById("userBubble"),
+    botBubble: document.getElementById("botBubble"),
+    extractWho: document.getElementById("extractWho"),
+    extractType: document.getElementById("extractType"),
+    extractIntent: document.getElementById("extractIntent"),
+    extractConfidence: document.getElementById("extractConfidence"),
+    decisionTitle: document.getElementById("decisionTitle"),
+    decisionCopy: document.getElementById("decisionCopy"),
+    followups: document.getElementById("followups"),
+    flowBadge: document.getElementById("flowBadge"),
+    productTitle: document.getElementById("productTitle"),
+    productCopy: document.getElementById("productCopy"),
+    productPrice: document.getElementById("productPrice"),
+    productMeta: document.getElementById("productMeta")
+  };
+
+  let activeMode = "enough";
+
+  function formatMoney(value) {
+    return `${currentCountry.currency} ${Math.round(value * currentCountry.multiplier).toLocaleString("en-US")}`;
+  }
+
+  function detectProfile(text) {
+    const clean = text.toLowerCase();
+    const who =
+      /child|kid|junior|baby|school/.test(clean) ? "child" :
+      /parent|mother|father|senior/.test(clean) ? "parent" :
+      /family|wife|husband|spouse/.test(clean) ? "family" : "self";
+    const type = /health|medical|hospital/.test(clean) ? "Health" : /motor|car|vehicle/.test(clean) ? "Motor" : "Insurance";
+    const intent = /cover|insurance|protect/.test(clean) ? "Insurance" : "Discovery";
+    const needsFollowup = activeMode === "followup" || !/health|medical|hospital/.test(clean) || !/child|family|parent|self|myself/.test(clean);
+    return { who, type, intent, needsFollowup };
+  }
+
+  function getRecommendation(profile) {
+    return profile.who === "parent" ? productTemplates.parent : profile.who === "family" ? productTemplates.family : productTemplates.child;
+  }
+
+  function render() {
+    const transcript = refs.voiceInput.value.trim() || "I need health insurance for my child";
+    const profile = detectProfile(transcript);
+    const recommendation = getRecommendation(profile);
+
+    refs.userBubble.textContent = transcript;
+    refs.extractWho.textContent = profile.who === "self" ? "Individual" : profile.who.charAt(0).toUpperCase() + profile.who.slice(1);
+    refs.extractType.textContent = profile.type;
+    refs.extractIntent.textContent = profile.intent;
+    refs.extractConfidence.textContent = profile.needsFollowup ? "Medium confidence" : "High confidence";
+
+    refs.followups.hidden = !profile.needsFollowup;
+    refs.flowBadge.textContent = profile.needsFollowup ? "Follow-up route" : "Direct route";
+    refs.productTitle.textContent = recommendation.title;
+    refs.productCopy.textContent = recommendation.copy;
+    refs.productPrice.textContent = formatMoney(recommendation.price);
+    refs.productMeta.textContent = `${currentCountry.name} marketplace estimate`;
+
+    if (profile.needsFollowup) {
+      refs.botBubble.textContent = "I found likely matches, but I still need a little more structure before quoting confidently.";
+      refs.decisionTitle.textContent = "Case B · Ask 2-3 follow-ups";
+      refs.decisionCopy.textContent = "Ask only for age, cover level, and budget. Then continue into listing with better personalization and less guesswork.";
+    } else {
+      refs.botBubble.textContent = "I found a strong match. Category, segment, and intent are clear enough to take you directly to a filtered listing.";
+      refs.decisionTitle.textContent = "Case A · Go directly to listing";
+      refs.decisionCopy.textContent = "The system can skip straight to matching products and apply filters before the user sees the listing.";
+    }
+  }
+
+  modeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeMode = button.dataset.mode;
+      modeButtons.forEach((item) => item.classList.toggle("active", item === button));
+      render();
+    });
+  });
+
+  queryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      refs.voiceInput.value = button.dataset.query;
+      render();
+    });
+  });
+
+  refs.runVoice.addEventListener("click", render);
+  refs.voiceInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") render();
+  });
+
+  refs.countrySelect.value = currentCountryCode;
+  refs.marketLabel.textContent = `${currentCountry.name} marketplace context`;
+  refs.countrySelect.addEventListener("change", (event) => {
+    localStorage.setItem("nxtinsureCountry", event.target.value);
+    window.location.reload();
+  });
+
+  render();
+</script>
+</body>
+</html>

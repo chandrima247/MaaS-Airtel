@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NxtInsure - Approach 2: Guided Stepper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #111111;
+    --accent: #e31c23;
+    --ink: #17181a;
+    --ink-light: #6b7280;
+    --line: #e5e7eb;
+    --bg: #ffffff;
+    --bg-soft: #f5f6f8;
+    --card: rgba(255,255,255,0.94);
+    --radius: 20px;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+    --shadow: 0 28px 70px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--ink); background: linear-gradient(180deg, #fff 0%, #fafafb 100%); }
+  .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+  nav { height: 78px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.92); position: sticky; top: 0; z-index: 30; backdrop-filter: blur(18px); }
+  .logo { text-decoration: none; color: var(--ink); font-weight: 900; font-size: 22px; letter-spacing: -0.04em; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; justify-content: center; gap: 8px; }
+  .nav-links a { text-decoration: none; color: var(--ink-light); font-weight: 700; padding: 10px 14px; border-radius: 999px; }
+  .nav-links a.active, .nav-links a:hover { color: var(--ink); background: var(--bg-soft); }
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
+  .country-select, .btn, .ghost-btn, .choice, .tag {
+    border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink); font: 700 13px var(--font-sans); cursor: pointer;
+  }
+  .country-select { padding: 10px 14px; }
+  .btn { padding: 12px 20px; background: var(--primary); color: white; border-color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .ghost-btn { padding: 12px 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .airtel-logo { height: 38px; width: auto; object-fit: contain; }
+  .hero { padding: 42px 0 30px; }
+  .eyebrow { display: inline-flex; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(227,28,35,0.18); background: #fff3f4; color: var(--accent); font-size: 11px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+  .hero-grid { margin-top: 24px; display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 26px; align-items: start; }
+  h1 { font-size: clamp(38px, 6vw, 70px); line-height: 0.95; letter-spacing: -0.05em; margin: 18px 0 14px; }
+  h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+  .lede { color: var(--ink-light); font-size: 18px; line-height: 1.7; max-width: 620px; }
+  .points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .points span { padding: 9px 12px; border-radius: 999px; border: 1px solid var(--line); background: white; color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  .panel, .summary-card, .profile-card, .result-card, .insight-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .panel { padding: 22px; }
+  .progress { display: flex; gap: 10px; margin-bottom: 18px; }
+  .progress-step { flex: 1; height: 8px; border-radius: 999px; background: #eceef2; overflow: hidden; }
+  .progress-step span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.25s ease; }
+  .panel h2 { font-size: 28px; letter-spacing: -0.04em; margin-bottom: 8px; }
+  .panel p { color: var(--ink-light); font-size: 14px; line-height: 1.7; margin-bottom: 20px; }
+  .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .choice { border-radius: 18px; padding: 16px; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+  .choice strong { font-size: 16px; letter-spacing: -0.02em; }
+  .choice small { color: var(--ink-light); font-size: 12px; }
+  .choice.active { border-color: var(--accent); background: #fff5f5; }
+  .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field span { color: var(--ink-light); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+  .field input, .field select {
+    border: 1px solid var(--line); border-radius: 14px; padding: 14px; font: 700 14px var(--font-sans); outline: 0; background: white;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(227,28,35,0.08); }
+  .row-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+  .summary-stack { display: grid; gap: 18px; }
+  .summary-card, .profile-card, .result-card { padding: 20px; }
+  .summary-card h3, .profile-card h3, .insight-card h3 { font-size: 18px; letter-spacing: -0.03em; margin-bottom: 10px; }
+  .summary-card p, .profile-card p, .insight-card p { color: var(--ink-light); font-size: 14px; line-height: 1.7; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .tag { padding: 9px 11px; font-size: 12px; cursor: default; }
+  pre {
+    margin-top: 12px; padding: 16px; border-radius: 16px; background: #101012; color: #f9fafb;
+    font: 600 12px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; overflow: auto;
+  }
+  .results { display: grid; gap: 14px; }
+  .result-card { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+  .result-card small { color: var(--ink-light); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+  .result-card h4 { font-size: 20px; letter-spacing: -0.03em; margin-top: 8px; }
+  .result-card ul { margin-top: 12px; padding-left: 18px; color: var(--ink-light); font-size: 14px; line-height: 1.7; }
+  .price-box { text-align: right; }
+  .price-box strong { display: block; font-size: 28px; letter-spacing: -0.04em; }
+  .price-box span { color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  .insight-strip { padding: 20px 0 72px; }
+  .insight-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .insight-card { padding: 20px; }
+  .hidden { display: none; }
+  @media (max-width: 1020px) {
+    .hero-grid, .insight-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    nav { grid-template-columns: 1fr; height: auto; padding: 14px 0; }
+    .nav-links { justify-content: flex-start; overflow: auto; }
+    .nav-actions { justify-content: flex-start; flex-wrap: wrap; }
+    .choices, .field-grid { grid-template-columns: 1fr; }
+    .result-card { grid-template-columns: 1fr; }
+    .price-box { text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <nav class="container">
+    <a class="logo" href="index.html">Nxt<span>Insure</span></a>
+    <div class="nav-links">
+      <a href="approach-voice.html">Voice Entry</a>
+      <a class="active" href="approach-guided.html">Guided Stepper</a>
+      <a href="approach-calculator.html">Direct Calculator</a>
+      <a href="index.html">Current Hybrid</a>
+    </div>
+    <div class="nav-actions">
+      <select class="country-select" id="countrySelect" aria-label="Select country">
+        <option value="UG">Uganda 🇺🇬</option>
+        <option value="KE">Kenya 🇰🇪</option>
+        <option value="ZM">Zambia 🇿🇲</option>
+      </select>
+      <img class="airtel-logo" src="https://i0.wp.com/png.co.ke/wp-content/uploads/2025/02/Airtel-Money.png?fit=1500,1247&ssl=1" alt="Airtel Money logo">
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Approach 2 · Guided Conversational Stepper</span>
+          <h1>Guide the user <em>one decision at a time</em>.</h1>
+          <p class="lede">This version is the controlled middle path. It asks only the most important questions in sequence, creates a profile object for the user, and then hands them into listing with better personalization and lower ambiguity.</p>
+          <div class="points">
+            <span>High clarity</span>
+            <span>Best for health</span>
+            <span>Lower interpretation risk</span>
+          </div>
+        </div>
+
+        <div class="summary-stack">
+          <div class="summary-card">
+            <h3>Why this is the core flow</h3>
+            <p>Health is not like motor or screen cover. Segment drives product mapping, so the stepper starts with who needs protection, then narrows into product type, coverage logic, and preferences.</p>
+            <div class="tag-row">
+              <span class="tag">Child → J-Junior</span>
+              <span class="tag">Parent → Senior / cash</span>
+              <span class="tag">Family → J-Care / similar</span>
+            </div>
+          </div>
+          <div class="profile-card">
+            <h3>Live profile object</h3>
+            <p>The flow builds this object before listing, which means pricing, product ranking, and filters already know the user context.</p>
+            <pre id="profilePreview">{
+  "segment": "child",
+  "type": "comprehensive",
+  "age": 8,
+  "members": 1,
+  "coverage": "30M",
+  "priority": "balanced"
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container" style="padding-bottom:28px;">
+      <div class="hero-grid">
+        <div class="panel">
+          <div class="progress" aria-label="Progress">
+            <div class="progress-step"><span id="p1"></span></div>
+            <div class="progress-step"><span id="p2"></span></div>
+            <div class="progress-step"><span id="p3"></span></div>
+            <div class="progress-step"><span id="p4"></span></div>
+          </div>
+
+          <div id="step1">
+            <h2>1. Who do you want to protect?</h2>
+            <p>Start with segment because that determines product mapping before price, benefits, or hospital network.</p>
+            <div class="choices" data-group="segment">
+              <button class="choice active" data-value="child"><strong>My child</strong><small>Maps naturally to J-Junior and child-led medical plans.</small></button>
+              <button class="choice" data-value="self"><strong>Myself</strong><small>Suitable for individual medical or hospital cash options.</small></button>
+              <button class="choice" data-value="family"><strong>My family</strong><small>Family floater and broader medical cover paths.</small></button>
+              <button class="choice" data-value="parent"><strong>My parent</strong><small>Senior-sensitive cover and lower-cost support options.</small></button>
+            </div>
+          </div>
+
+          <div id="step2" class="hidden">
+            <h2>2. What kind of cover do you want?</h2>
+            <p>Keep this simple. Users usually understand full medical vs hospital cash much faster than a long list of product names.</p>
+            <div class="choices" data-group="type">
+              <button class="choice active" data-value="comprehensive"><strong>Full medical cover</strong><small>Broader hospitalization, OPD, dental, and optical paths.</small></button>
+              <button class="choice" data-value="cash"><strong>Hospital cash</strong><small>Lower-cost option focused on cash benefit during admission.</small></button>
+            </div>
+          </div>
+
+          <div id="step3" class="hidden">
+            <h2>3. Add the core inputs</h2>
+            <p>Ask only what is required for ranking and quoting. Everything else can be optional or handled later.</p>
+            <div class="field-grid">
+              <label class="field">
+                <span>Primary age</span>
+                <input id="ageInput" type="number" min="1" max="80" value="8">
+              </label>
+              <label class="field">
+                <span>Members covered</span>
+                <input id="membersInput" type="number" min="1" max="8" value="1">
+              </label>
+              <label class="field">
+                <span>Coverage level</span>
+                <select id="coverageInput">
+                  <option value="15M">15M</option>
+                  <option value="30M" selected>30M</option>
+                  <option value="60M">60M</option>
+                  <option value="90M">90M</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Priority</span>
+                <select id="priorityInput">
+                  <option value="balanced" selected>Balanced</option>
+                  <option value="price">Lowest price</option>
+                  <option value="network">Best provider network</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div id="step4" class="hidden">
+            <h2>4. Optional preferences</h2>
+            <p>These are useful, but not mandatory. This is where progressive reveal helps lower drop-off.</p>
+            <div class="choices" data-group="hospital">
+              <button class="choice active" data-value="any"><strong>Any network</strong><small>Do not restrict hospital partners yet.</small></button>
+              <button class="choice" data-value="urban"><strong>Urban hospitals</strong><small>Prioritize major city providers and larger facilities.</small></button>
+              <button class="choice" data-value="family-clinic"><strong>Child-friendly clinics</strong><small>Useful for pediatric-focused care journeys.</small></button>
+              <button class="choice" data-value="skip"><strong>Skip for now</strong><small>See plans now, refine later in listing.</small></button>
+            </div>
+          </div>
+
+          <div class="row-actions">
+            <button class="ghost-btn" id="backBtn" type="button">Back</button>
+            <button class="btn" id="nextBtn" type="button">Next</button>
+          </div>
+        </div>
+
+        <div class="summary-stack">
+          <div class="summary-card">
+            <h3>Adaptive output</h3>
+            <p id="summaryText">This stepper is currently building a child-focused health profile. As soon as the core data is present, the listing can be pre-filtered and premium-ranked.</p>
+          </div>
+
+          <div class="results" id="resultsPanel">
+            <article class="result-card">
+              <div>
+                <small>Recommended</small>
+                <h4>Jubilee J-Care Junior</h4>
+                <ul>
+                  <li>Strong child-product fit</li>
+                  <li>OPD, dental and optical options</li>
+                  <li>Best starting point for pediatric full cover</li>
+                </ul>
+              </div>
+              <div class="price-box">
+                <strong id="priceOne">UGX 12,000</strong>
+                <span id="metaOne">From monthly estimate</span>
+              </div>
+            </article>
+
+            <article class="result-card">
+              <div>
+                <small>Alternative</small>
+                <h4 id="altTitle">Liberty Health Lite</h4>
+                <ul>
+                  <li id="altFit">Budget-conscious option</li>
+                  <li id="altBenefit">Good if lower monthly spend matters</li>
+                  <li id="altClaim">Useful as a compare candidate in listing</li>
+                </ul>
+              </div>
+              <div class="price-box">
+                <strong id="priceTwo">UGX 28,000</strong>
+                <span>Estimated compare anchor</span>
+              </div>
+            </article>
+          </div>
+
+          <div class="row-actions">
+            <a class="btn" href="index.html#listing-view">Open listing with this profile</a>
+            <a class="ghost-btn" href="compare.html">See compare flow</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insight-strip">
+      <div class="container insight-grid">
+        <article class="insight-card">
+          <h3>Best for health</h3>
+          <p>It gives structure where product logic is complex and segment-driven. That matters more in health than in simple insurance categories.</p>
+        </article>
+        <article class="insight-card">
+          <h3>Drop-off control</h3>
+          <p>Progress indication, smart defaults, and the ability to skip non-essential questions keep it from feeling like a heavy form.</p>
+        </article>
+        <article class="insight-card">
+          <h3>Recommended role</h3>
+          <p>This should be the core engine beneath the marketplace, especially when AI confidence is low or the user is new to insurance.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+<script>
+  const countryConfigs = {
+    UG: { name: "Uganda", currency: "UGX", multiplier: 1 },
+    KE: { name: "Kenya", currency: "KES", multiplier: 0.036 },
+    ZM: { name: "Zambia", currency: "ZMW", multiplier: 0.0075 }
+  };
+
+  const state = {
+    step: 1,
+    segment: "child",
+    type: "comprehensive",
+    age: 8,
+    members: 1,
+    coverage: "30M",
+    priority: "balanced",
+    hospital: "any"
+  };
+
+  const currentCountryCode = localStorage.getItem("nxtinsureCountry") || "UG";
+  const currentCountry = countryConfigs[currentCountryCode] || countryConfigs.UG;
+
+  const refs = {
+    countrySelect: document.getElementById("countrySelect"),
+    backBtn: document.getElementById("backBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+    steps: [1, 2, 3, 4].map((n) => document.getElementById(`step${n}`)),
+    progress: [1, 2, 3, 4].map((n) => document.getElementById(`p${n}`)),
+    ageInput: document.getElementById("ageInput"),
+    membersInput: document.getElementById("membersInput"),
+    coverageInput: document.getElementById("coverageInput"),
+    priorityInput: document.getElementById("priorityInput"),
+    profilePreview: document.getElementById("profilePreview"),
+    summaryText: document.getElementById("summaryText"),
+    priceOne: document.getElementById("priceOne"),
+    priceTwo: document.getElementById("priceTwo"),
+    metaOne: document.getElementById("metaOne"),
+    altTitle: document.getElementById("altTitle"),
+    altFit: document.getElementById("altFit"),
+    altBenefit: document.getElementById("altBenefit"),
+    altClaim: document.getElementById("altClaim")
+  };
+
+  function formatMoney(value) {
+    return `${currentCountry.currency} ${Math.round(value * currentCountry.multiplier).toLocaleString("en-US")}`;
+  }
+
+  function updateProgress() {
+    refs.progress.forEach((bar, index) => {
+      bar.style.width = index < state.step ? "100%" : "0%";
+    });
+  }
+
+  function updateVisibility() {
+    refs.steps.forEach((stepEl, index) => {
+      stepEl.classList.toggle("hidden", index + 1 !== state.step);
+    });
+    refs.backBtn.style.visibility = state.step === 1 ? "hidden" : "visible";
+    refs.nextBtn.textContent = state.step === 4 ? "Finish profile" : "Next";
+    updateProgress();
+  }
+
+  function getBasePrices() {
+    if (state.segment === "child") return [12000, 28000];
+    if (state.segment === "family") return [42000, 39000];
+    if (state.segment === "parent") return [18000, 25000];
+    return [22000, 18000];
+  }
+
+  function updateSummary() {
+    state.age = Number(refs.ageInput.value) || 8;
+    state.members = Number(refs.membersInput.value) || 1;
+    state.coverage = refs.coverageInput.value;
+    state.priority = refs.priorityInput.value;
+
+    const profile = {
+      segment: state.segment,
+      type: state.type,
+      age: state.age,
+      members: state.members,
+      coverage: state.coverage,
+      priority: state.priority,
+      hospitalPreference: state.hospital
+    };
+    refs.profilePreview.textContent = JSON.stringify(profile, null, 2);
+
+    const [basePrimary, baseSecondary] = getBasePrices();
+    const ageFactor = state.age > 55 ? 1.22 : state.age > 35 ? 1.08 : 1;
+    const memberFactor = state.members > 1 ? 1 + ((state.members - 1) * 0.28) : 1;
+    const typeFactor = state.type === "cash" ? 0.62 : 1;
+    const coverageFactor = { "15M": 0.84, "30M": 1, "60M": 1.24, "90M": 1.42 }[state.coverage] || 1;
+    const primary = basePrimary * ageFactor * memberFactor * typeFactor * coverageFactor;
+    const secondary = baseSecondary * ageFactor * memberFactor * typeFactor * coverageFactor;
+
+    refs.priceOne.textContent = formatMoney(primary);
+    refs.priceTwo.textContent = formatMoney(secondary);
+    refs.metaOne.textContent = `${currentCountry.name} stepper estimate`;
+
+    const segmentCopy = state.segment === "child" ? "child-focused" : state.segment === "family" ? "family-sized" : state.segment === "parent" ? "parent-sensitive" : "individual";
+    const typeCopy = state.type === "cash" ? "hospital-cash" : "full medical";
+    refs.summaryText.textContent = `This stepper is building a ${segmentCopy} ${typeCopy} profile for the ${currentCountry.name} marketplace. Listing can now start filtered instead of asking the user to scan everything cold.`;
+
+    if (state.segment === "family") {
+      refs.altTitle.textContent = "UAP Family Shield";
+      refs.altFit.textContent = "Built for multi-member cover";
+      refs.altBenefit.textContent = "Broader family-oriented benefit structure";
+      refs.altClaim.textContent = "Strong compare candidate for benefit depth";
+    } else if (state.segment === "parent") {
+      refs.altTitle.textContent = "Sanlam Hospital Cash";
+      refs.altFit.textContent = "Useful when premium sensitivity is high";
+      refs.altBenefit.textContent = "Simpler hospital support path";
+      refs.altClaim.textContent = "Good alternative when full medical feels too heavy";
+    } else if (state.segment === "self") {
+      refs.altTitle.textContent = "Liberty Health Lite";
+      refs.altFit.textContent = "Straightforward individual medical option";
+      refs.altBenefit.textContent = "Balanced for solo coverage";
+      refs.altClaim.textContent = "Useful compare anchor for lower monthly spend";
+    } else {
+      refs.altTitle.textContent = "Liberty Health Lite";
+      refs.altFit.textContent = "Budget-conscious option";
+      refs.altBenefit.textContent = "Good if lower monthly spend matters";
+      refs.altClaim.textContent = "Useful as a compare candidate in listing";
+    }
+  }
+
+  document.querySelectorAll("[data-group='segment'] .choice").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.segment = button.dataset.value;
+      document.querySelectorAll("[data-group='segment'] .choice").forEach((item) => item.classList.toggle("active", item === button));
+      if (state.segment === "family") refs.membersInput.value = 4;
+      if (state.segment === "child") refs.membersInput.value = 1;
+      updateSummary();
+    });
+  });
+
+  document.querySelectorAll("[data-group='type'] .choice").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.type = button.dataset.value;
+      document.querySelectorAll("[data-group='type'] .choice").forEach((item) => item.classList.toggle("active", item === button));
+      updateSummary();
+    });
+  });
+
+  document.querySelectorAll("[data-group='hospital'] .choice").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.hospital = button.dataset.value;
+      document.querySelectorAll("[data-group='hospital'] .choice").forEach((item) => item.classList.toggle("active", item === button));
+      updateSummary();
+    });
+  });
+
+  [refs.ageInput, refs.membersInput, refs.coverageInput, refs.priorityInput].forEach((input) => {
+    input.addEventListener("input", updateSummary);
+    input.addEventListener("change", updateSummary);
+  });
+
+  refs.nextBtn.addEventListener("click", () => {
+    if (state.step < 4) {
+      state.step += 1;
+      updateVisibility();
+    } else {
+      window.location.href = "index.html#listing-view";
+    }
+  });
+
+  refs.backBtn.addEventListener("click", () => {
+    if (state.step > 1) {
+      state.step -= 1;
+      updateVisibility();
+    }
+  });
+
+  refs.countrySelect.value = currentCountryCode;
+  refs.countrySelect.addEventListener("change", (event) => {
+    localStorage.setItem("nxtinsureCountry", event.target.value);
+    window.location.reload();
+  });
+
+  updateVisibility();
+  updateSummary();
+</script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NxtInsure - Approach 3: Direct Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #111111;
+    --accent: #e31c23;
+    --ink: #17181a;
+    --ink-light: #6b7280;
+    --line: #e5e7eb;
+    --bg: #ffffff;
+    --bg-soft: #f5f6f8;
+    --card: rgba(255,255,255,0.95);
+    --radius: 20px;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+    --shadow: 0 28px 70px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--ink); background: linear-gradient(180deg, #fff 0%, #fafafb 100%); }
+  .container { width: min(1200px, calc(100% - 40px)); margin: 0 auto; }
+  nav { height: 78px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.92); position: sticky; top: 0; z-index: 30; backdrop-filter: blur(18px); }
+  .logo { text-decoration: none; color: var(--ink); font-weight: 900; font-size: 22px; letter-spacing: -0.04em; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; justify-content: center; gap: 8px; }
+  .nav-links a { text-decoration: none; color: var(--ink-light); font-weight: 700; padding: 10px 14px; border-radius: 999px; }
+  .nav-links a.active, .nav-links a:hover { color: var(--ink); background: var(--bg-soft); }
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
+  .country-select, .btn, .ghost-btn, .pill, .quick-btn {
+    border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink); font: 700 13px var(--font-sans); cursor: pointer;
+  }
+  .country-select { padding: 10px 14px; }
+  .btn { padding: 12px 20px; background: var(--primary); color: white; border-color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .ghost-btn { padding: 12px 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+  .airtel-logo { height: 38px; width: auto; object-fit: contain; }
+  .hero { padding: 40px 0 26px; }
+  .eyebrow { display: inline-flex; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(227,28,35,0.18); background: #fff3f4; color: var(--accent); font-size: 11px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+  h1 { font-size: clamp(38px, 6vw, 70px); line-height: 0.96; letter-spacing: -0.05em; margin: 18px 0 14px; }
+  h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+  .lede { color: var(--ink-light); font-size: 18px; line-height: 1.7; max-width: 680px; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .pill { padding: 9px 12px; cursor: default; }
+  .layout { display: grid; grid-template-columns: 320px minmax(0, 1fr) 320px; gap: 22px; padding: 18px 0 70px; }
+  .panel, .results-shell, .summary-shell, .tip-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .panel, .results-shell, .summary-shell, .tip-card { padding: 20px; }
+  .panel h2, .results-shell h2, .summary-shell h2 { font-size: 22px; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .panel p, .results-shell p, .summary-shell p, .tip-card p { color: var(--ink-light); font-size: 14px; line-height: 1.7; }
+  .field { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+  .field span { color: var(--ink-light); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+  .field input, .field select {
+    border: 1px solid var(--line); border-radius: 14px; padding: 14px; font: 700 14px var(--font-sans); outline: 0; background: white;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(227,28,35,0.08); }
+  .range-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  input[type="range"] { accent-color: var(--accent); }
+  .quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .quick-btn { padding: 9px 11px; }
+  .summary-shell { position: sticky; top: 98px; }
+  .price-hero { padding: 18px; border-radius: 18px; background: linear-gradient(135deg, #111 0%, #2a2a2d 100%); color: white; margin: 14px 0 16px; }
+  .price-hero small { display: block; opacity: 0.7; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  .price-hero strong { display: block; margin-top: 8px; font-size: 40px; letter-spacing: -0.05em; }
+  .price-hero span { display: block; margin-top: 6px; color: rgba(255,255,255,0.72); font-size: 13px; font-weight: 700; }
+  .summary-list { display: grid; gap: 12px; margin-top: 14px; }
+  .summary-row { display: flex; justify-content: space-between; gap: 12px; align-items: start; font-size: 14px; }
+  .summary-row span { color: var(--ink-light); }
+  .summary-row strong { text-align: right; }
+  .cta-row { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .tip-stack { display: grid; gap: 14px; margin-top: 18px; }
+  .tip-card h3 { font-size: 18px; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .result-list { display: grid; gap: 14px; margin-top: 18px; }
+  .result-card { border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: start; }
+  .result-card small { color: var(--ink-light); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+  .result-card h3 { margin-top: 8px; font-size: 22px; letter-spacing: -0.03em; }
+  .result-card p { margin-top: 9px; max-width: 500px; }
+  .feature-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .feature-row span { padding: 8px 10px; border-radius: 999px; background: var(--bg-soft); font-size: 12px; font-weight: 700; color: var(--ink-light); }
+  .result-price { text-align: right; }
+  .result-price strong { display: block; font-size: 30px; letter-spacing: -0.05em; }
+  .result-price span { color: var(--ink-light); font-size: 12px; font-weight: 700; }
+  .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 18px; }
+  .toolbar .pill { cursor: default; }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+    .summary-shell { position: static; }
+  }
+  @media (max-width: 760px) {
+    nav { grid-template-columns: 1fr; height: auto; padding: 14px 0; }
+    .nav-links { justify-content: flex-start; overflow: auto; }
+    .nav-actions { justify-content: flex-start; flex-wrap: wrap; }
+    .result-card { grid-template-columns: 1fr; }
+    .result-price { text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <nav class="container">
+    <a class="logo" href="index.html">Nxt<span>Insure</span></a>
+    <div class="nav-links">
+      <a href="approach-voice.html">Voice Entry</a>
+      <a href="approach-guided.html">Guided Stepper</a>
+      <a class="active" href="approach-calculator.html">Direct Calculator</a>
+      <a href="index.html">Current Hybrid</a>
+    </div>
+    <div class="nav-actions">
+      <select class="country-select" id="countrySelect" aria-label="Select country">
+        <option value="UG">Uganda 🇺🇬</option>
+        <option value="KE">Kenya 🇰🇪</option>
+        <option value="ZM">Zambia 🇿🇲</option>
+      </select>
+      <img class="airtel-logo" src="https://i0.wp.com/png.co.ke/wp-content/uploads/2025/02/Airtel-Money.png?fit=1500,1247&ssl=1" alt="Airtel Money logo">
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hero">
+      <span class="eyebrow">Approach 3 · Direct Calculator</span>
+      <h1>Let power users <em>enter everything fast</em>.</h1>
+      <p class="lede">This version is the shortest path to quote generation. It works well for experienced users who know what they want, but it puts more cognitive load on the page because the user must structure the problem themselves.</p>
+      <div class="hero-pills">
+        <span class="pill">Fastest for repeat users</span>
+        <span class="pill">Most transparent</span>
+        <span class="pill">Higher cognitive load</span>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <h2>Single-page calculator</h2>
+        <p>Every key field is available up front. Great for users who already know the segment, type, and coverage they want.</p>
+
+        <label class="field">
+          <span>Segment</span>
+          <select id="segmentInput">
+            <option value="child" selected>Child</option>
+            <option value="self">Individual</option>
+            <option value="family">Family</option>
+            <option value="parent">Parent</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Product type</span>
+          <select id="typeInput">
+            <option value="comprehensive" selected>Full medical cover</option>
+            <option value="cash">Hospital cash</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Primary age</span>
+          <input id="ageInput" type="number" min="1" max="80" value="8">
+        </label>
+        <label class="field">
+          <span>Members covered</span>
+          <input id="membersInput" type="number" min="1" max="8" value="1">
+        </label>
+        <label class="field">
+          <span>Coverage level</span>
+          <select id="coverageInput">
+            <option value="15M">15M</option>
+            <option value="30M" selected>30M</option>
+            <option value="60M">60M</option>
+            <option value="90M">90M</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Monthly budget</span>
+          <input id="budgetInput" type="range" min="5000" max="70000" step="1000" value="30000">
+          <div class="range-row">
+            <small id="budgetMin">UGX 5,000</small>
+            <strong id="budgetLabel">UGX 30,000</strong>
+          </div>
+        </label>
+        <div class="quick-actions">
+          <button class="quick-btn" type="button" data-budget="15000">Budget</button>
+          <button class="quick-btn" type="button" data-budget="30000">Balanced</button>
+          <button class="quick-btn" type="button" data-budget="50000">Premium</button>
+        </div>
+      </aside>
+
+      <section class="results-shell">
+        <h2>Instant quote view</h2>
+        <p>This is the most direct path into products. Results update live as the calculator changes, with minimal guidance and maximum speed.</p>
+
+        <div class="toolbar">
+          <span class="pill" id="resultPill">3 plans found</span>
+          <span class="pill" id="contextPill">Child · Full medical</span>
+        </div>
+
+        <div class="result-list">
+          <article class="result-card">
+            <div>
+              <small>Best fit</small>
+              <h3 id="titleOne">Jubilee J-Care Junior</h3>
+              <p id="copyOne">Strongest product match for child-focused full health cover with a broad benefits base.</p>
+              <div class="feature-row">
+                <span id="tagOneA">OPD included</span>
+                <span id="tagOneB">Dental optional</span>
+                <span id="tagOneC">Child-focused fit</span>
+              </div>
+            </div>
+            <div class="result-price">
+              <strong id="priceOne">UGX 12,000</strong>
+              <span id="metaOne">Monthly estimate</span>
+            </div>
+          </article>
+
+          <article class="result-card">
+            <div>
+              <small>Compare option</small>
+              <h3 id="titleTwo">Liberty Health Lite</h3>
+              <p id="copyTwo">A simpler alternative when lower spend matters more than maximum breadth.</p>
+              <div class="feature-row">
+                <span id="tagTwoA">Lower premium</span>
+                <span id="tagTwoB">Useful compare anchor</span>
+                <span id="tagTwoC">Fast shortlist</span>
+              </div>
+            </div>
+            <div class="result-price">
+              <strong id="priceTwo">UGX 28,000</strong>
+              <span>Alternative estimate</span>
+            </div>
+          </article>
+
+          <article class="result-card">
+            <div>
+              <small>Budget edge</small>
+              <h3 id="titleThree">Sanlam Hospital Cash</h3>
+              <p id="copyThree">A lower-cost route when hospital cash is acceptable instead of broader medical reimbursement.</p>
+              <div class="feature-row">
+                <span id="tagThreeA">Low-entry spend</span>
+                <span id="tagThreeB">Cash benefit</span>
+                <span id="tagThreeC">Fallback option</span>
+              </div>
+            </div>
+            <div class="result-price">
+              <strong id="priceThree">UGX 8,500</strong>
+              <span>Entry estimate</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <aside class="summary-shell">
+        <h2>Power-user summary</h2>
+        <p>This pattern is familiar and efficient, but it expects the user to know how to translate their need into structured inputs.</p>
+        <div class="price-hero">
+          <small>Indicative premium range</small>
+          <strong id="headlinePrice">UGX 12,000</strong>
+          <span id="headlineMeta">Best-fit monthly estimate</span>
+        </div>
+        <div class="summary-list">
+          <div class="summary-row"><span>Segment</span><strong id="summarySegment">Child</strong></div>
+          <div class="summary-row"><span>Type</span><strong id="summaryType">Full medical cover</strong></div>
+          <div class="summary-row"><span>Coverage</span><strong id="summaryCoverage">30M</strong></div>
+          <div class="summary-row"><span>Budget guardrail</span><strong id="summaryBudget">UGX 30,000</strong></div>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="index.html#listing-view">Open full listing</a>
+          <a class="ghost-btn" href="compare.html">Compare selected plans</a>
+        </div>
+        <div class="tip-stack">
+          <article class="tip-card">
+            <h3>Where this shines</h3>
+            <p>Renewals, repeat users, agents, and anyone who already knows their segment and budget.</p>
+          </article>
+          <article class="tip-card">
+            <h3>Where this struggles</h3>
+            <p>First-time users can feel burdened because the page asks them to decide too much before they see recommendations.</p>
+          </article>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+<script>
+  const countryConfigs = {
+    UG: { name: "Uganda", currency: "UGX", multiplier: 1, budget: { min: 5000, max: 70000, default: 30000 } },
+    KE: { name: "Kenya", currency: "KES", multiplier: 0.036, budget: { min: 500, max: 3000, default: 1800 } },
+    ZM: { name: "Zambia", currency: "ZMW", multiplier: 0.0075, budget: { min: 100, max: 1800, default: 900 } }
+  };
+
+  const currentCountryCode = localStorage.getItem("nxtinsureCountry") || "UG";
+  const currentCountry = countryConfigs[currentCountryCode] || countryConfigs.UG;
+
+  const refs = {
+    countrySelect: document.getElementById("countrySelect"),
+    segmentInput: document.getElementById("segmentInput"),
+    typeInput: document.getElementById("typeInput"),
+    ageInput: document.getElementById("ageInput"),
+    membersInput: document.getElementById("membersInput"),
+    coverageInput: document.getElementById("coverageInput"),
+    budgetInput: document.getElementById("budgetInput"),
+    budgetMin: document.getElementById("budgetMin"),
+    budgetLabel: document.getElementById("budgetLabel"),
+    resultPill: document.getElementById("resultPill"),
+    contextPill: document.getElementById("contextPill"),
+    titleOne: document.getElementById("titleOne"),
+    copyOne: document.getElementById("copyOne"),
+    titleTwo: document.getElementById("titleTwo"),
+    copyTwo: document.getElementById("copyTwo"),
+    titleThree: document.getElementById("titleThree"),
+    copyThree: document.getElementById("copyThree"),
+    priceOne: document.getElementById("priceOne"),
+    priceTwo: document.getElementById("priceTwo"),
+    priceThree: document.getElementById("priceThree"),
+    metaOne: document.getElementById("metaOne"),
+    headlinePrice: document.getElementById("headlinePrice"),
+    headlineMeta: document.getElementById("headlineMeta"),
+    summarySegment: document.getElementById("summarySegment"),
+    summaryType: document.getElementById("summaryType"),
+    summaryCoverage: document.getElementById("summaryCoverage"),
+    summaryBudget: document.getElementById("summaryBudget")
+  };
+
+  function formatMoney(value) {
+    return `${currentCountry.currency} ${Math.round(value * currentCountry.multiplier).toLocaleString("en-US")}`;
+  }
+
+  function updateBudgetScale() {
+    refs.budgetInput.min = currentCountry.budget.min;
+    refs.budgetInput.max = currentCountry.budget.max;
+    refs.budgetInput.value = currentCountry.budget.default;
+    refs.budgetMin.textContent = formatMoney(currentCountry.budget.min);
+  }
+
+  function calculateBase(segment, type) {
+    if (segment === "child") return type === "cash" ? [8500, 12000, 18000] : [12000, 28000, 8500];
+    if (segment === "family") return type === "cash" ? [26000, 39000, 18000] : [42000, 45000, 28000];
+    if (segment === "parent") return type === "cash" ? [18000, 25000, 8500] : [30000, 38000, 18000];
+    return type === "cash" ? [15000, 22000, 8500] : [24000, 28000, 18000];
+  }
+
+  function updateResults() {
+    const segment = refs.segmentInput.value;
+    const type = refs.typeInput.value;
+    const age = Number(refs.ageInput.value) || 8;
+    const members = Number(refs.membersInput.value) || 1;
+    const coverage = refs.coverageInput.value;
+    const budget = Number(refs.budgetInput.value) || currentCountry.budget.default;
+
+    const [p1, p2, p3] = calculateBase(segment, type);
+    const ageFactor = age > 55 ? 1.25 : age > 35 ? 1.1 : 1;
+    const memberFactor = members > 1 ? 1 + ((members - 1) * 0.28) : 1;
+    const coverageFactor = { "15M": 0.84, "30M": 1, "60M": 1.26, "90M": 1.42 }[coverage] || 1;
+    const typeFactor = type === "cash" ? 0.7 : 1;
+
+    const priceOne = p1 * ageFactor * memberFactor * coverageFactor * typeFactor;
+    const priceTwo = p2 * ageFactor * memberFactor * coverageFactor * typeFactor;
+    const priceThree = p3 * ageFactor * memberFactor * Math.max(typeFactor * 0.88, 0.58);
+
+    refs.budgetLabel.textContent = formatMoney(budget);
+    refs.resultPill.textContent = budget < priceOne ? "3 plans found · budget may be tight" : "3 plans found";
+    refs.contextPill.textContent = `${segment.charAt(0).toUpperCase() + segment.slice(1)} · ${type === "cash" ? "Hospital cash" : "Full medical"}`;
+
+    refs.summarySegment.textContent = segment.charAt(0).toUpperCase() + segment.slice(1);
+    refs.summaryType.textContent = type === "cash" ? "Hospital cash" : "Full medical cover";
+    refs.summaryCoverage.textContent = coverage;
+    refs.summaryBudget.textContent = formatMoney(budget);
+    refs.headlinePrice.textContent = formatMoney(priceOne);
+    refs.headlineMeta.textContent = `${currentCountry.name} calculator estimate`;
+
+    refs.priceOne.textContent = formatMoney(priceOne);
+    refs.priceTwo.textContent = formatMoney(priceTwo);
+    refs.priceThree.textContent = formatMoney(priceThree);
+    refs.metaOne.textContent = `${currentCountry.name} monthly estimate`;
+
+    if (segment === "family") {
+      refs.titleOne.textContent = "Jubilee J-Care Family";
+      refs.copyOne.textContent = "The fastest broad-match recommendation for a family entering all details directly.";
+      refs.titleTwo.textContent = "UAP Family Shield";
+      refs.copyTwo.textContent = "A stronger compare candidate when broader family benefits matter.";
+      refs.titleThree.textContent = "Sanlam Hospital Cash";
+      refs.copyThree.textContent = "A cheaper fallback if the family is cost-sensitive.";
+    } else if (segment === "parent") {
+      refs.titleOne.textContent = type === "cash" ? "Sanlam Hospital Cash" : "Liberty Health Senior";
+      refs.copyOne.textContent = "A fast route for parent-sensitive coverage when the user already knows the segment.";
+      refs.titleTwo.textContent = "Jubilee Senior Care";
+      refs.copyTwo.textContent = "Good compare option if broader provider support is required.";
+      refs.titleThree.textContent = "Hospital Sente";
+      refs.copyThree.textContent = "Lower entry spend for simpler support needs.";
+    } else if (segment === "self") {
+      refs.titleOne.textContent = "Liberty Health Lite";
+      refs.copyOne.textContent = "A clean direct-calculator fit for individual medical cover.";
+      refs.titleTwo.textContent = "Jubilee Individual Care";
+      refs.copyTwo.textContent = "Useful when provider access matters more than lowest price.";
+      refs.titleThree.textContent = "Hospital Sente";
+      refs.copyThree.textContent = "Budget fallback if hospital cash is acceptable.";
+    } else {
+      refs.titleOne.textContent = type === "cash" ? "Sanlam Hospital Cash" : "Jubilee J-Care Junior";
+      refs.copyOne.textContent = "Strongest product match for child-focused cover when the user wants speed.";
+      refs.titleTwo.textContent = "Liberty Health Lite";
+      refs.copyTwo.textContent = "A simpler alternative when lower spend matters more than maximum breadth.";
+      refs.titleThree.textContent = "Hospital Sente";
+      refs.copyThree.textContent = "Lowest-friction fallback if hospital cash is acceptable.";
+    }
+  }
+
+  document.querySelectorAll("[data-budget]").forEach((button) => {
+    button.addEventListener("click", () => {
+      refs.budgetInput.value = button.dataset.budget;
+      updateResults();
+    });
+  });
+
+  [refs.segmentInput, refs.typeInput, refs.ageInput, refs.membersInput, refs.coverageInput, refs.budgetInput].forEach((input) => {
+    input.addEventListener("input", updateResults);
+    input.addEventListener("change", updateResults);
+  });
+
+  refs.countrySelect.value = currentCountryCode;
+  refs.countrySelect.addEventListener("change", (event) => {
+    localStorage.setItem("nxtinsureCountry", event.target.value);
+    window.location.reload();
+  });
+
+  updateBudgetScale();
+  updateResults();
+</script>
+</body>
+</html>
