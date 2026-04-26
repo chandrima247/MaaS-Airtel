@@ -121,9 +121,22 @@
   /* Progress Bar */
   .progress-wrap { width: 120px; height: 4px; background: #eee; margin: 0 auto 32px; border-radius: 10px; overflow: hidden; }
   .progress-bar { height: 100%; width: 33.33%; background: var(--accent); transition: width 0.4s ease; }
+  .guide-container.chat-mode .progress-wrap {
+    height: 0;
+    margin: 0 auto 10px;
+    opacity: 0;
+    transition: all 0.24s ease;
+  }
+  .guide-container.chat-mode.show-options .progress-wrap {
+    height: 4px;
+    margin: 0 auto 18px;
+    opacity: 1;
+  }
 
   .step { display: none; animation: fadeIn 0.5s ease forwards; }
   .step.active { display: block; }
+  .guide-container.chat-mode .step.active { display: none; }
+  .guide-container.chat-mode.show-options .step.active { display: block; }
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -219,6 +232,11 @@
     gap: 12px;
     margin-bottom: 10px;
   }
+  .ai-thread-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
   .ai-thread-head strong {
     font-size: 12px;
     font-weight: 900;
@@ -230,6 +248,28 @@
     color: var(--accent);
     font-size: 11px;
     font-weight: 800;
+  }
+  .ai-thread-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ai-thread-btn {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: white;
+    color: var(--ink-light);
+    padding: 8px 11px;
+    font: 800 11px var(--font-sans);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ai-thread-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
   }
   .ai-thread-list {
     display: grid;
@@ -449,12 +489,22 @@
       width: min(680px, calc(100% - 32px));
       margin: 0 auto 16px;
     }
+    .ai-thread-head {
+      align-items: flex-start;
+      flex-direction: column;
+    }
   }
 
   @media (max-width: 560px) {
     .ai-search { width: 100%; flex-wrap: wrap; border-radius: 20px; }
     .ai-search input { flex-basis: calc(100% - 58px); height: 42px; }
     .ai-submit { width: 100%; }
+    .ai-thread-dock {
+      width: 100%;
+      border-radius: 18px;
+    }
+    .ai-thread-controls { width: 100%; }
+    .ai-thread-btn { flex: 1; text-align: center; }
     .products-grid { grid-template-columns: 1fr; }
     .listing-main.list-view .product-card { grid-template-columns: 1fr; }
     .listing-main.list-view .product-footer { grid-column: 1; grid-row: auto; border-left: 0; border-top: 1px solid var(--border); padding-left: 0; padding-top: 16px; align-items: stretch; text-align: left; }
@@ -527,8 +577,14 @@
       </div>
       <aside class="ai-thread-dock" id="ai-thread-dock" aria-live="polite">
         <div class="ai-thread-head">
-          <strong>AI Thread</strong>
-          <span>Live</span>
+          <div class="ai-thread-meta">
+            <strong>AI Thread</strong>
+            <span>Live</span>
+          </div>
+          <div class="ai-thread-controls">
+            <button class="ai-thread-btn" id="toggle-options-btn" type="button">View options</button>
+            <button class="ai-thread-btn" id="collapse-chat-btn" type="button">Collapse</button>
+          </div>
         </div>
         <div class="ai-thread-list" id="ai-thread-list"></div>
       </aside>
@@ -815,6 +871,9 @@
   let calculatorConfirmed = true;
   const searchInput = document.getElementById('ai-search-input');
   let aiThread = [];
+  let chatMode = false;
+  let optionsPanelVisible = false;
+  const guideContainer = document.querySelector('.guide-container');
 
   function findOptionLabel(category, id) {
     const option = (cleanStep2Config[category]?.options || []).find(item => item.id === id);
@@ -837,10 +896,11 @@
   function renderAiThread() {
     const dock = document.getElementById('ai-thread-dock');
     const list = document.getElementById('ai-thread-list');
-    dock.classList.toggle('visible', aiThread.length > 0);
+    dock.classList.toggle('visible', chatMode && aiThread.length > 0);
     list.innerHTML = aiThread.slice(-4).map(item => `
       <div class="ai-thread-item ${item.role}">${item.text}</div>
     `).join('');
+    document.getElementById('toggle-options-btn').innerText = optionsPanelVisible ? 'Hide options' : 'View options';
   }
 
   function pushAiThread(role, text) {
@@ -850,14 +910,37 @@
     renderAiThread();
   }
 
+  function syncChatMode() {
+    guideContainer.classList.toggle('chat-mode', chatMode);
+    guideContainer.classList.toggle('show-options', optionsPanelVisible);
+    renderAiThread();
+  }
+
+  function enterChatMode(seedMessage = true) {
+    chatMode = true;
+    optionsPanelVisible = false;
+    if (seedMessage && aiThread.length === 0) {
+      pushAiThread('assistant', 'Tell me what you want to protect. You can keep talking or open the options.');
+    }
+    syncChatMode();
+  }
+
+  function collapseChatMode() {
+    chatMode = false;
+    optionsPanelVisible = false;
+    syncChatMode();
+  }
+
   function resetDiscoverySteps() {
     document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
     document.getElementById('step-1').classList.add('active');
     document.getElementById('progress').style.width = '33.33%';
     selections = { category: '', sub: '', priority: '' };
     setSearchPlaceholder('Tell us: I need health cover for my child');
-    aiThread = [];
-    renderAiThread();
+    if (chatMode) {
+      aiThread = [];
+      renderAiThread();
+    }
   }
 
   function inferIntent(query) {
@@ -895,6 +978,7 @@
 
   function guideFromSearch(query) {
     const value = (query || searchInput.value || '').trim();
+    enterChatMode(false);
 
     if (!value) {
       setSearchPlaceholder('Try: health cover for my child, cheap motor insurance, or protect my phone');
@@ -990,6 +1074,10 @@
       if (stepNum === 1) setSearchPlaceholder(cleanStep2Config[val].sub);
       if (stepNum === 2) setSearchPlaceholder('Tell us what matters most: lowest price, maximum cover, or fastest claims');
     }
+    if (chatMode) {
+      optionsPanelVisible = true;
+      syncChatMode();
+    }
   }
 
   function prevStep(stepNum) {
@@ -1004,6 +1092,7 @@
       selections.sub = '';
       setSearchPlaceholder(cleanStep2Config[selections.category].sub);
     }
+    if (chatMode) syncChatMode();
   }
 
   function convertAmount(value) {
@@ -1268,13 +1357,26 @@
     document.getElementById('listing-view').style.display = 'none';
     document.getElementById('discovery-section').style.display = 'flex';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    enterChatMode(false);
     setSearchPlaceholder('Tell us: I need health cover for my child');
     searchInput.focus();
+  });
+  document.getElementById('toggle-options-btn').addEventListener('click', () => {
+    enterChatMode(false);
+    optionsPanelVisible = !optionsPanelVisible;
+    syncChatMode();
+  });
+  document.getElementById('collapse-chat-btn').addEventListener('click', () => {
+    collapseChatMode();
+  });
+  searchInput.addEventListener('focus', () => {
+    enterChatMode(true);
   });
 
   document.getElementById('mic-btn').addEventListener('click', () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const mic = document.getElementById('mic-btn');
+    enterChatMode(true);
 
     if (!SpeechRecognition) {
       setSearchPlaceholder('Voice is not available here. Type your request instead');
@@ -1319,6 +1421,7 @@
     window.location.reload();
   });
   configureCountryContext();
+  syncChatMode();
   setSearchPlaceholder('Tell us: I need health cover for my child');
 </script>
 </body>
