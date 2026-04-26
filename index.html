@@ -263,6 +263,9 @@
     flex-wrap: wrap;
   }
   .ai-thread-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     border: 1px solid var(--border);
     border-radius: 999px;
     background: rgba(255,255,255,0.92);
@@ -275,6 +278,15 @@
   .ai-thread-btn:hover {
     border-color: var(--ink);
     color: var(--ink);
+  }
+  .ai-thread-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .ai-thread-list {
     display: grid;
@@ -301,6 +313,30 @@
     color: var(--ink);
     border: 1px solid #eceff1;
     border-bottom-left-radius: 8px;
+  }
+  .thread-quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .thread-quick-replies[hidden] {
+    display: none;
+  }
+  .quick-reply {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface, #ffffff);
+    color: var(--ink);
+    padding: 9px 12px;
+    font: 700 12px var(--font-sans);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .quick-reply:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
   }
 
   @keyframes pulseMic {
@@ -733,10 +769,10 @@
           <div class="ai-thread-head">
             <div class="ai-thread-controls">
               <button class="ai-thread-btn" id="toggle-options-btn" type="button">View options</button>
-              <button class="ai-thread-btn" id="collapse-chat-btn" type="button">Collapse</button>
             </div>
           </div>
           <div class="ai-thread-list" id="ai-thread-list"></div>
+          <div class="thread-quick-replies" id="thread-quick-replies" hidden></div>
         </aside>
         <div class="ai-search" role="search" aria-label="Conversational insurance search">
           <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
@@ -1098,10 +1134,10 @@
   };
 
   const mockProducts = [
-    { id: 1, cat: 'health', title: 'Jubilee J-Care Junior', insurer: 'Jubilee Health', price: 12000, badge: 'Child Cover', tags: ['opd', 'dental', 'optical'], coverScore: 92, claimsScore: 82, ipf: true, features: ['OPD, dental and optical options', 'Built for children', 'Online quote in minutes'] },
-    { id: 2, cat: 'health', title: 'Liberty Health Lite', insurer: 'Liberty', price: 28000, badge: 'Popular', tags: ['opd'], coverScore: 84, claimsScore: 78, ipf: true, features: ['5M inpatient limit', '300+ hospitals', 'No waiting period'] },
-    { id: 3, cat: 'health', title: 'Sanlam Hospital Cash', insurer: 'Sanlam', price: 8500, badge: 'Best Value', tags: ['opd'], coverScore: 72, claimsScore: 94, ipf: true, features: ['Daily hospital cash benefit', 'Covers accident and illness', 'Paid in 48 hours'] },
-    { id: 4, cat: 'health', title: 'UAP Family Shield', insurer: 'UAP Old Mutual', price: 45000, badge: 'Premium', tags: ['opd', 'dental', 'optical'], coverScore: 96, claimsScore: 76, ipf: false, features: ['Full family cover', 'Dental and optical included', 'Regional coverage'] },
+    { id: 1, cat: 'health', title: 'Jubilee J-Care Junior', insurer: 'Jubilee Health', price: 12000, badge: 'Child Cover', tags: ['opd', 'dental', 'optical'], coverScore: 92, claimsScore: 82, ipf: true, healthType: 'full', segments: ['child'], coverageLevel: 'standard', features: ['OPD, dental and optical options', 'Built for children', 'Online quote in minutes'] },
+    { id: 2, cat: 'health', title: 'Liberty Health Lite', insurer: 'Liberty', price: 28000, badge: 'Popular', tags: ['opd'], coverScore: 84, claimsScore: 78, ipf: true, healthType: 'full', segments: ['child', 'self'], coverageLevel: 'basic', features: ['5M inpatient limit', '300+ hospitals', 'No waiting period'] },
+    { id: 3, cat: 'health', title: 'Sanlam Hospital Cash', insurer: 'Sanlam', price: 8500, badge: 'Best Value', tags: ['opd'], coverScore: 72, claimsScore: 94, ipf: true, healthType: 'cash', segments: ['child', 'family', 'self'], coverageLevel: 'basic', features: ['Daily hospital cash benefit', 'Covers accident and illness', 'Paid in 48 hours'] },
+    { id: 4, cat: 'health', title: 'Jubilee J-Care Family', insurer: 'UAP Old Mutual', price: 45000, badge: 'Premium', tags: ['opd', 'dental', 'optical'], coverScore: 96, claimsScore: 76, ipf: false, healthType: 'full', segments: ['family'], coverageLevel: 'premium', features: ['Full family cover', 'Dental and optical included', 'Regional coverage'] },
     { id: 5, cat: 'motor', title: 'Britam Third Party', insurer: 'Britam', price: 42500, badge: 'Mandatory', tags: [], coverScore: 76, claimsScore: 84, ipf: true, features: ['Legal liability', 'Property damage', 'Instant sticker'] },
     { id: 6, cat: 'device', title: 'ICEA Screen Protect', insurer: 'ICEA Lion', price: 3200, badge: 'New', tags: [], coverScore: 70, claimsScore: 88, ipf: false, features: ['All-risk screen cover', 'Free pickup and delivery', '3-day repair turnaround'] }
   ];
@@ -1113,6 +1149,17 @@
   let chatMode = false;
   let optionsPanelVisible = false;
   const guideContainer = document.querySelector('.guide-container');
+  let healthConversation = {
+    active: false,
+    segment: '',
+    age: '',
+    coverType: '',
+    household: '',
+    coverageLevel: '',
+    budgetBand: '',
+    needs: [],
+    summaryShown: false
+  };
 
   function findOptionLabel(category, id) {
     const option = (cleanStep2Config[category]?.options || []).find(item => item.id === id);
@@ -1128,8 +1175,80 @@
     return priority === 'price' ? 'lowest price' : priority === 'cover' ? 'maximum cover' : priority === 'claims' ? 'fastest claims' : 'your priority';
   }
 
+  function getEmptyHealthConversation() {
+    return {
+      active: false,
+      segment: '',
+      age: '',
+      coverType: '',
+      household: '',
+      coverageLevel: '',
+      budgetBand: '',
+      needs: [],
+      summaryShown: false
+    };
+  }
+
+  function resetHealthConversation() {
+    healthConversation = getEmptyHealthConversation();
+  }
+
+  function ageLabel(age) {
+    return `${age} year${Number(age) === 1 ? '' : 's'}`;
+  }
+
+  function coverageLevelLabel(level) {
+    return level === 'basic' ? 'Basic' : level === 'standard' ? 'Standard' : level === 'premium' ? 'Premium' : level;
+  }
+
+  function inferHealthDetails(query) {
+    const text = query.toLowerCase();
+    const ageMatch = text.match(/(?:^|\b)(\d{1,2})(?:\s*(?:years?|yrs?|yr|yo|y\/o))?(?:\b|$)/);
+    const needs = [];
+    if (/dental/.test(text)) needs.push('dental');
+    if (/optical|vision/.test(text)) needs.push('optical');
+    if (/maternity/.test(text)) needs.push('maternity');
+
+    return {
+      category: /(health|medical|hospital|doctor|clinic|opd|dental|optical|cash)/.test(text) ? 'health' : '',
+      segment: /(child|junior|kid|baby|son|daughter)/.test(text) ? 'child' : '',
+      age: ageMatch ? Number(ageMatch[1]) : '',
+      coverType: /(hospital cash|cash payout|cash plan)/.test(text) ? 'cash' : (/(full medical|medical cover|doctor visits|hospitalization|hospitalisation|full cover)/.test(text) ? 'full' : ''),
+      household: /(whole family|my family|family cover|include my family|for the family)/.test(text) ? 'family' : (/(just my child|child only|only my child)/.test(text) ? 'child' : ''),
+      coverageLevel: /(basic|lower cost|low cost)/.test(text) ? 'basic' : (/(standard|mid|regular)/.test(text) ? 'standard' : (/(premium|higher coverage|top cover|best cover)/.test(text) ? 'premium' : '')),
+      budgetBand: /(under ?50|below ?50|under 50k|below 50k)/.test(text) ? 'under-50' : (/(50k.?100k|50 ?to ?100|50-100|50–100)/.test(text) ? '50-100' : (/(100k\+|100k plus|over 100|100 plus|100k or more)/.test(text) ? '100-plus' : '')),
+      needs
+    };
+  }
+
   function setSearchPlaceholder(text) {
     searchInput.placeholder = text;
+  }
+
+  function getHealthQuickReplies() {
+    if (!healthConversation.active) return [];
+    if (!healthConversation.age) return ['2 years', '5 years', '12 years'];
+    if (!healthConversation.coverType) return ['Full medical cover', 'Hospital cash'];
+    if (healthConversation.coverType === 'full' && !healthConversation.household) return ['Just my child', 'Whole family'];
+    if (!healthConversation.coverageLevel) return ['Basic', 'Standard', 'Premium'];
+    if (!healthConversation.summaryShown) return [];
+    if (!healthConversation.budgetBand) return ['See plans', 'Under 50k/month', '50k-100k', '100k+'];
+    return ['See plans', 'Dental', 'Optical'];
+  }
+
+  function getQuickReplies() {
+    if (healthConversation.active) return getHealthQuickReplies();
+    if (!selections.category) return ['Health insurance', 'Motor insurance', 'Protect my phone'];
+    if (!selections.sub) return cleanStep2Config[selections.category].options.map(option => option.label);
+    if (!selections.priority) return ['Lowest price', 'Maximum cover', 'Fastest claims'];
+    return [];
+  }
+
+  function renderQuickReplies() {
+    const wrap = document.getElementById('thread-quick-replies');
+    const replies = chatMode ? getQuickReplies() : [];
+    wrap.hidden = replies.length === 0;
+    wrap.innerHTML = replies.map(reply => `<button class="quick-reply" type="button" data-reply="${reply.replace(/"/g, '&quot;')}">${reply}</button>`).join('');
   }
 
   function renderAiThread() {
@@ -1139,7 +1258,8 @@
     list.innerHTML = aiThread.slice(-4).map(item => `
       <div class="ai-thread-item ${item.role}">${item.text}</div>
     `).join('');
-    document.getElementById('toggle-options-btn').innerText = optionsPanelVisible ? 'Hide options' : 'View options';
+    document.getElementById('toggle-options-btn').innerHTML = `${optionsPanelVisible ? 'Hide options' : 'View options'} <svg viewBox="0 0 24 24" aria-hidden="true"><path d="${optionsPanelVisible ? 'M6 15l6-6 6 6' : 'M6 9l6 6 6-6'}"></path></svg>`;
+    renderQuickReplies();
   }
 
   function pushAiThread(role, text) {
@@ -1153,6 +1273,7 @@
     guideContainer.classList.toggle('chat-mode', chatMode);
     guideContainer.classList.toggle('show-options', optionsPanelVisible);
     renderAiThread();
+    syncHealthOptionsPanel();
   }
 
   function enterChatMode(seedMessage = true) {
@@ -1175,11 +1296,218 @@
     document.getElementById('step-1').classList.add('active');
     document.getElementById('progress').style.width = '33.33%';
     selections = { category: '', sub: '', priority: '' };
+    resetHealthConversation();
     setSearchPlaceholder('Tell us: I need health cover for my child');
     if (chatMode) {
       aiThread = [];
       renderAiThread();
     }
+  }
+
+  function mapCoverageLevelToTier(level) {
+    return level === 'basic' ? 'lite' : level === 'premium' ? 'premium' : 'standard';
+  }
+
+  function applyHealthConversationToJourney() {
+    selections.category = 'health';
+    selections.sub = healthConversation.coverType === 'full' && healthConversation.household === 'family' ? 'family' : 'child';
+    selections.priority = 'price';
+
+    document.getElementById('calc-cover').value = selections.sub;
+    if (healthConversation.age) document.getElementById('calc-age').value = healthConversation.age;
+    if (healthConversation.coverageLevel) document.getElementById('calc-tier').value = mapCoverageLevelToTier(healthConversation.coverageLevel);
+    document.getElementById('sort-select').value = 'price';
+
+    if (healthConversation.budgetBand === 'under-50') document.getElementById('calc-budget').value = currentCountry.budget.min;
+    if (healthConversation.budgetBand === '50-100') document.getElementById('calc-budget').value = Math.min(currentCountry.budget.max, currentCountry.budget.min + (currentCountry.budget.step * 45));
+    if (healthConversation.budgetBand === '100-plus') document.getElementById('calc-budget').value = currentCountry.budget.max;
+
+    document.querySelectorAll('.filter-input').forEach(input => {
+      if (healthConversation.coverType === 'cash') {
+        input.checked = false;
+      } else if (healthConversation.needs.length) {
+        input.checked = input.value === 'opd' || healthConversation.needs.includes(input.value);
+      }
+    });
+  }
+
+  function matchesHealthConversation(product) {
+    if (product.cat !== 'health' || !healthConversation.active) return true;
+    if (healthConversation.coverType && product.healthType && product.healthType !== healthConversation.coverType) return false;
+    const segment = healthConversation.coverType === 'full' && healthConversation.household === 'family' ? 'family' : 'child';
+    if (product.segments && !product.segments.includes(segment)) return false;
+    if (healthConversation.coverageLevel && product.coverageLevel) {
+      const rank = { basic: 1, standard: 2, premium: 3 };
+      if (healthConversation.coverType === 'cash') return true;
+      if (healthConversation.coverageLevel === 'basic' && rank[product.coverageLevel] > 2) return false;
+      if (healthConversation.coverageLevel === 'standard' && rank[product.coverageLevel] < 2) return false;
+      if (healthConversation.coverageLevel === 'premium' && rank[product.coverageLevel] < 2) return false;
+    }
+    return true;
+  }
+
+  function getHealthStartingPrice() {
+    applyHealthConversationToJourney();
+    const quote = getQuoteState();
+    const products = getLocalizedProducts()
+      .filter(product => product.cat === 'health')
+      .filter(matchesHealthConversation);
+    if (!products.length) return compactMoney(currentCountry.budget.min);
+    const start = Math.min(...products.map(product => calculatePremium(product, quote)));
+    return formatMoney(start);
+  }
+
+  function buildHealthSummaryMessage() {
+    const coverLine = healthConversation.coverType === 'cash' ? 'Hospital cash' : 'Full medical cover';
+    const scopeLine = healthConversation.coverType === 'full'
+      ? (healthConversation.household === 'family' ? 'Family included' : 'Just your child')
+      : 'Child-focused hospital payout';
+    return `Here's what I found for you:<br>Child: ${ageLabel(healthConversation.age)}<br>Cover: ${coverLine}<br>Scope: ${scopeLine}<br>Level: ${coverageLevelLabel(healthConversation.coverageLevel)}<br><br>Plans start from ~${getHealthStartingPrice()}/month.`;
+  }
+
+  function renderAssistantOptions(title, sub, options) {
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.getElementById('step-2').classList.add('active');
+    document.getElementById('step-2-title').innerHTML = title;
+    document.getElementById('step-2-sub').innerText = sub;
+    document.getElementById('step-2-options').innerHTML = options.map(option => `
+      <div class="option-card" onclick="selectAssistantOption('${option.value.replace(/'/g, "\\'")}')">
+        <div class="option-icon">${option.icon}</div>
+        <span>${option.label}</span>
+      </div>
+    `).join('');
+    document.getElementById('progress').style.width = '66.66%';
+  }
+
+  function syncHealthOptionsPanel() {
+    if (!healthConversation.active || !optionsPanelVisible) return;
+
+    if (!healthConversation.age) {
+      renderAssistantOptions('How old is your <em>child?</em>', 'Pick a likely age or type the exact age in the chat field.', [
+        { value: '2 years', label: '2 years', icon: '2Y' },
+        { value: '5 years', label: '5 years', icon: '5Y' },
+        { value: '12 years', label: '12 years', icon: '12Y' }
+      ]);
+      return;
+    }
+
+    if (!healthConversation.coverType) {
+      renderAssistantOptions('Choose the <em>cover type.</em>', 'This decides whether we show full medical plans or micro hospital cash products.', [
+        { value: 'Full medical cover', label: 'Full medical cover', icon: 'Full' },
+        { value: 'Hospital cash', label: 'Hospital cash', icon: 'Cash' }
+      ]);
+      return;
+    }
+
+    if (healthConversation.coverType === 'full' && !healthConversation.household) {
+      renderAssistantOptions('Who should the <em>plan</em> cover?', 'This helps split child-only products from family plans with child riders.', [
+        { value: 'Just my child', label: 'Just my child', icon: 'Child' },
+        { value: 'Whole family', label: 'Whole family', icon: 'Family' }
+      ]);
+      return;
+    }
+
+    if (!healthConversation.coverageLevel) {
+      renderAssistantOptions('Pick a <em>coverage level.</em>', 'We can keep this simple instead of asking for a medical limit up front.', [
+        { value: 'Basic', label: 'Basic', icon: 'Base' },
+        { value: 'Standard', label: 'Standard', icon: 'Std' },
+        { value: 'Premium', label: 'Premium', icon: 'Plus' }
+      ]);
+      return;
+    }
+
+    if (!healthConversation.budgetBand) {
+      renderAssistantOptions('Refine before <em>listing?</em>', 'You can go straight to plans or tighten the shortlist with a rough budget.', [
+        { value: 'See plans', label: 'See plans', icon: 'List' },
+        { value: 'Under 50k/month', label: 'Under 50k/month', icon: '50K' },
+        { value: '50k-100k', label: '50k-100k', icon: 'Mid' },
+        { value: '100k+', label: '100k+', icon: 'High' }
+      ]);
+      return;
+    }
+
+    renderAssistantOptions('Add any <em>benefits?</em>', 'Optional extras can be used as filters once the core quote is ready.', [
+      { value: 'See plans', label: 'See plans', icon: 'List' },
+      { value: 'Dental', label: 'Dental', icon: 'Care' },
+      { value: 'Optical', label: 'Optical', icon: 'View' }
+    ]);
+  }
+
+  function selectAssistantOption(value) {
+    optionsPanelVisible = false;
+    syncChatMode();
+    guideFromSearch(value);
+  }
+
+  function handleHealthConversation(query, details) {
+    if (!healthConversation.active) {
+      healthConversation.active = true;
+      healthConversation.segment = 'child';
+    }
+
+    if (details.age) healthConversation.age = details.age;
+    if (details.coverType) healthConversation.coverType = details.coverType;
+    if (details.household) healthConversation.household = details.household === 'family' ? 'family' : 'child';
+    if (details.coverageLevel) healthConversation.coverageLevel = details.coverageLevel;
+    if (details.budgetBand) healthConversation.budgetBand = details.budgetBand;
+    if (details.needs.length) {
+      healthConversation.needs = [...new Set([...healthConversation.needs, ...details.needs])];
+    }
+
+    if (/^(show|see|open).*(plans|listing|quotes)|^(plans|listing|quotes|see plans)$/i.test(query) && healthConversation.summaryShown) {
+      pushAiThread('assistant', 'Opening the most relevant child health plans now.');
+      applyHealthConversationToJourney();
+      openListing(false);
+      return;
+    }
+
+    if (!healthConversation.age) {
+      setSearchPlaceholder('How old is your child?');
+      pushAiThread('assistant', 'How old is your child?');
+      return;
+    }
+
+    if (!healthConversation.coverType) {
+      setSearchPlaceholder('Full medical cover or hospital cash?');
+      pushAiThread('assistant', 'What kind of cover are you looking for? Full medical cover or hospital cash?');
+      return;
+    }
+
+    if (healthConversation.coverType === 'full' && !healthConversation.household) {
+      setSearchPlaceholder('Just my child or whole family?');
+      pushAiThread('assistant', 'Is this just for your child or for the whole family?');
+      return;
+    }
+
+    if (!healthConversation.coverageLevel) {
+      setSearchPlaceholder('Basic, standard, or premium?');
+      pushAiThread('assistant', 'What level of coverage would you prefer: basic, standard, or premium?');
+      return;
+    }
+
+    if (!healthConversation.summaryShown) {
+      healthConversation.summaryShown = true;
+      setSearchPlaceholder('Say "see plans" or refine with budget and benefits');
+      pushAiThread('assistant', buildHealthSummaryMessage());
+      return;
+    }
+
+    if (details.budgetBand) {
+      applyHealthConversationToJourney();
+      setSearchPlaceholder('Say "see plans" or add dental or optical');
+      pushAiThread('assistant', `Budget noted. I'll keep the shortlist around ${details.budgetBand === 'under-50' ? 'under 50k' : details.budgetBand === '50-100' ? '50k to 100k' : '100k+'} per month.`);
+      return;
+    }
+
+    if (details.needs.length) {
+      applyHealthConversationToJourney();
+      setSearchPlaceholder('Say "see plans" when you are ready');
+      pushAiThread('assistant', `Added ${details.needs.join(' and ')} to the shortlist.`);
+      return;
+    }
+
+    setSearchPlaceholder('Say "see plans" or refine with budget and benefits');
+    pushAiThread('assistant', 'You can see plans now, or refine this with a budget, dental, or optical.');
   }
 
   function inferIntent(query) {
@@ -1225,7 +1553,21 @@
       return;
     }
 
+    const healthDetails = inferHealthDetails(value);
+    const startHealthChildFlow = !healthConversation.active && healthDetails.category === 'health' && healthDetails.segment === 'child';
+
+    if (startHealthChildFlow) {
+      resetDiscoverySteps();
+      enterChatMode(false);
+    }
+
     pushAiThread('user', value);
+    searchInput.value = '';
+
+    if (healthConversation.active || startHealthChildFlow) {
+      handleHealthConversation(value, healthDetails);
+      return;
+    }
 
     if (/(show|see|open|skip).*(plans|listing|quotes)|^(plans|listing|quotes)$/i.test(value)) {
       pushAiThread('assistant', 'Opening listing first. Plans will stay locked until the calculator is confirmed.');
@@ -1435,6 +1777,7 @@
 
     let displayList = getLocalizedProducts()
       .filter(product => product.cat === selections.category || selections.category === '')
+      .filter(matchesHealthConversation)
       .filter(product => selections.category !== 'health' || quote.insurers.includes(product.insurer))
       .filter(product => selections.category !== 'health' || quote.benefits.every(benefit => product.tags.includes(benefit)))
       .filter(product => !quote.ipfOnly || product.ipf)
@@ -1598,6 +1941,7 @@
     document.getElementById('discovery-section').style.display = 'flex';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     enterChatMode(false);
+    searchInput.value = '';
     setSearchPlaceholder('Tell us: I need health cover for my child');
     searchInput.focus();
   });
@@ -1606,8 +1950,10 @@
     optionsPanelVisible = !optionsPanelVisible;
     syncChatMode();
   });
-  document.getElementById('collapse-chat-btn').addEventListener('click', () => {
-    collapseChatMode();
+  document.getElementById('thread-quick-replies').addEventListener('click', event => {
+    const target = event.target.closest('[data-reply]');
+    if (!target) return;
+    guideFromSearch(target.dataset.reply);
   });
 
   document.getElementById('mic-btn').addEventListener('click', () => {
@@ -1622,6 +1968,7 @@
     }
 
     const recognition = new SpeechRecognition();
+    let heardResult = false;
     recognition.lang = currentCountry.locale || 'en-UG';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
@@ -1629,6 +1976,7 @@
     setSearchPlaceholder('Listening... say what you want covered');
 
     recognition.onresult = event => {
+      heardResult = true;
       const transcript = event.results[0][0].transcript;
       searchInput.value = transcript;
       guideFromSearch(transcript);
@@ -1640,7 +1988,7 @@
 
     recognition.onend = () => {
       mic.classList.remove('listening');
-      if (!searchInput.value.trim()) setSearchPlaceholder('Tell us: I need health cover for my child');
+      if (!heardResult && !searchInput.value.trim()) setSearchPlaceholder('Tell us: I need health cover for my child');
     };
     recognition.start();
   });
