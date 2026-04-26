@@ -153,9 +153,26 @@
     line-height: 1.6;
   }
 
-  .ai-search {
-    width: min(680px, calc(100% - 32px));
+  .conversation-shell {
+    width: min(760px, calc(100% - 32px));
     margin: -6px auto 16px;
+    display: grid;
+    gap: 10px;
+    position: relative;
+    z-index: 12;
+    transition: all 0.24s ease;
+  }
+  .guide-container.chat-mode .conversation-shell {
+    padding: 14px;
+    border: 1px solid rgba(229, 231, 235, 0.95);
+    border-radius: 28px;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.08);
+    backdrop-filter: blur(18px);
+  }
+  .ai-search {
+    width: 100%;
+    margin: 0;
     padding: 7px;
     display: flex;
     align-items: center;
@@ -204,8 +221,8 @@
   .mic-btn:hover,
   .ai-submit:hover { transform: translateY(-1px); }
   .ai-thread-dock {
-    width: min(560px, calc(100% - 64px));
-    margin: 0 auto 12px;
+    width: 100%;
+    margin: 0;
     padding: 10px 10px 12px;
     border: 1px solid rgba(229, 231, 235, 0.95);
     border-radius: 20px;
@@ -220,9 +237,16 @@
     pointer-events: none;
     transition: opacity 0.24s ease, max-height 0.24s ease, margin 0.24s ease, padding 0.24s ease;
   }
+  .guide-container.chat-mode .ai-thread-dock,
+  .guide-container.chat-mode .ai-search {
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    backdrop-filter: none;
+  }
   .ai-thread-dock.visible {
     opacity: 1;
-    max-height: 260px;
+    max-height: 320px;
     pointer-events: auto;
   }
   .ai-thread-head {
@@ -255,28 +279,28 @@
   .ai-thread-list {
     display: grid;
     gap: 8px;
-    max-height: 180px;
+    max-height: 236px;
     overflow: auto;
     padding-right: 2px;
   }
   .ai-thread-item {
-    padding: 10px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    line-height: 1.55;
+    padding: 14px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.6;
   }
   .ai-thread-item.user {
-    margin-left: 20px;
+    margin-left: 54px;
     background: #17181a;
     color: white;
-    border-bottom-right-radius: 6px;
+    border-bottom-right-radius: 8px;
   }
   .ai-thread-item.assistant {
-    margin-right: 20px;
+    margin-right: 36px;
     background: #f5f6f7;
     color: var(--ink);
     border: 1px solid #eceff1;
-    border-bottom-left-radius: 6px;
+    border-bottom-left-radius: 8px;
   }
 
   @keyframes pulseMic {
@@ -607,10 +631,6 @@
     .steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .footer-bottom { flex-direction: column; }
-    .ai-thread-dock {
-      width: min(680px, calc(100% - 32px));
-      margin: 0 auto 16px;
-    }
     .ai-thread-head {
       align-items: flex-start;
       flex-direction: column;
@@ -618,12 +638,28 @@
   }
 
   @media (max-width: 560px) {
+    .conversation-shell {
+      width: 100%;
+    }
+    .guide-container.chat-mode .conversation-shell {
+      padding: 12px;
+      border-radius: 22px;
+    }
     .ai-search { width: 100%; flex-wrap: wrap; border-radius: 20px; }
     .ai-search input { flex-basis: calc(100% - 58px); height: 42px; }
     .ai-submit { width: 100%; }
     .ai-thread-dock {
       width: 100%;
       border-radius: 18px;
+    }
+    .ai-thread-item {
+      font-size: 13px;
+      padding: 12px 14px;
+    }
+    .ai-thread-item.user,
+    .ai-thread-item.assistant {
+      margin-left: 0;
+      margin-right: 0;
     }
     .ai-thread-controls { width: 100%; }
     .ai-thread-btn { flex: 1; text-align: center; }
@@ -692,23 +728,25 @@
 
     <div class="guide-container">
       <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
-      <aside class="ai-thread-dock" id="ai-thread-dock" aria-live="polite">
-        <div class="ai-thread-head">
-          <div class="ai-thread-controls">
-            <button class="ai-thread-btn" id="toggle-options-btn" type="button">View options</button>
-            <button class="ai-thread-btn" id="collapse-chat-btn" type="button">Collapse</button>
+      <div class="conversation-shell">
+        <aside class="ai-thread-dock" id="ai-thread-dock" aria-live="polite">
+          <div class="ai-thread-head">
+            <div class="ai-thread-controls">
+              <button class="ai-thread-btn" id="toggle-options-btn" type="button">View options</button>
+              <button class="ai-thread-btn" id="collapse-chat-btn" type="button">Collapse</button>
+            </div>
           </div>
+          <div class="ai-thread-list" id="ai-thread-list"></div>
+        </aside>
+        <div class="ai-search" role="search" aria-label="Conversational insurance search">
+          <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M12 14c1.7 0 3-1.3 3-3V6c0-1.7-1.3-3-3-3S9 4.3 9 6v5c0 1.7 1.3 3 3 3Zm5.3-3c0 3-2.2 5.3-5.3 5.3S6.7 14 6.7 11H5c0 3.6 2.7 6.6 6.2 7v3h1.6v-3c3.5-.4 6.2-3.4 6.2-7h-1.7Z"/>
+            </svg>
+          </button>
+          <input id="ai-search-input" type="text" placeholder="Tell us: I need health cover for my child">
+          <button class="ai-submit" id="ai-submit" type="button">Guide me</button>
         </div>
-        <div class="ai-thread-list" id="ai-thread-list"></div>
-      </aside>
-      <div class="ai-search" role="search" aria-label="Conversational insurance search">
-        <button class="mic-btn" id="mic-btn" type="button" aria-label="Start voice search">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path fill="currentColor" d="M12 14c1.7 0 3-1.3 3-3V6c0-1.7-1.3-3-3-3S9 4.3 9 6v5c0 1.7 1.3 3 3 3Zm5.3-3c0 3-2.2 5.3-5.3 5.3S6.7 14 6.7 11H5c0 3.6 2.7 6.6 6.2 7v3h1.6v-3c3.5-.4 6.2-3.4 6.2-7h-1.7Z"/>
-          </svg>
-        </button>
-        <input id="ai-search-input" type="text" placeholder="Tell us: I need health cover for my child">
-        <button class="ai-submit" id="ai-submit" type="button">Guide me</button>
       </div>
 
       <!-- STEP 1 -->
@@ -1101,7 +1139,7 @@
     list.innerHTML = aiThread.slice(-4).map(item => `
       <div class="ai-thread-item ${item.role}">${item.text}</div>
     `).join('');
-    document.getElementById('toggle-options-btn').innerText = optionsPanelVisible ? 'Hide categories' : 'View categories';
+    document.getElementById('toggle-options-btn').innerText = optionsPanelVisible ? 'Hide options' : 'View options';
   }
 
   function pushAiThread(role, text) {
@@ -1121,7 +1159,7 @@
     chatMode = true;
     optionsPanelVisible = false;
     if (seedMessage && aiThread.length === 0) {
-      pushAiThread('assistant', 'Tell me what you want to protect. You can keep talking or open the categories.');
+      pushAiThread('assistant', 'Tell me what you want to protect. You can keep talking or open the options when you need them.');
     }
     syncChatMode();
   }
@@ -1276,7 +1314,7 @@
       if (stepNum === 2) setSearchPlaceholder('Tell us what matters most: lowest price, maximum cover, or fastest claims');
     }
     if (chatMode) {
-      optionsPanelVisible = true;
+      optionsPanelVisible = false;
       syncChatMode();
     }
   }
@@ -1499,6 +1537,7 @@
     selections.priority = priority;
     pushAiThread('user', priorityLabel(priority));
     pushAiThread('assistant', 'Opening ranked results.');
+    optionsPanelVisible = false;
     openListing(false);
   }
 
