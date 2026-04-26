@@ -447,6 +447,144 @@
   .chat-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
   .chat-options button { border: 1px solid var(--border); border-radius: 999px; background: white; color: var(--ink); padding: 8px 10px; font: 750 12px var(--font-sans); cursor: pointer; }
   .chat-reply { border-radius: 14px; padding: 10px; background: #fff1f2; color: var(--accent); font-size: 12px; font-weight: 750; }
+  .steps-section {
+    padding: 96px 0 84px;
+    background: #fafafa;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 20;
+  }
+  .steps-header {
+    margin-bottom: 48px;
+    text-align: center;
+  }
+  .steps-title {
+    font-family: var(--font-serif);
+    font-size: clamp(34px, 4vw, 46px);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+  }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+  }
+  .step-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 34px 28px;
+    text-align: center;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.03);
+  }
+  .step-illustration {
+    height: 100px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-illustration svg {
+    max-height: 100%;
+    width: auto;
+  }
+  .step-num {
+    display: inline-block;
+    margin-bottom: 14px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .step-card h4 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    letter-spacing: -0.03em;
+  }
+  .step-card p {
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  #main-footer {
+    background: #f9f9f7;
+    padding: 58px 0 28px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 20;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 34px;
+  }
+  .footer-brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-divider {
+    width: 1px;
+    height: 16px;
+    background: #ddd;
+  }
+  .footer-airtel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .footer-airtel-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    text-transform: lowercase;
+  }
+  .footer-brand p {
+    margin-top: 16px;
+    max-width: 280px;
+    color: var(--ink-light);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .footer-col h5 {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .footer-col ul {
+    list-style: none;
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+  }
+  .footer-col a {
+    color: #374151;
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .footer-col a:hover {
+    color: var(--accent);
+  }
+  .footer-bottom {
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--ink-light);
+  }
 
   .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; font-size: 14px; }
   .btn-dark { background: var(--primary); color: white; }
@@ -466,6 +604,9 @@
     .compare-tray { align-items: stretch; flex-direction: column; text-align: left; }
     .tray-actions { width: 100%; }
     .tray-actions .btn { flex: 1; }
+    .steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .footer-bottom { flex-direction: column; }
     .ai-thread-dock {
       width: min(680px, calc(100% - 32px));
       margin: 0 auto 16px;
@@ -491,6 +632,10 @@
     .listing-main.list-view .product-footer { grid-column: 1; grid-row: auto; border-left: 0; border-top: 1px solid var(--border); padding-left: 0; padding-top: 16px; align-items: stretch; text-align: left; }
     .listing-main.list-view .product-features { grid-template-columns: 1fr; }
     .product-footer { align-items: stretch; flex-direction: column; }
+    .steps-section { padding: 76px 0 68px; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .step-card { padding: 28px 22px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 28px; }
   }
 </style>
 </head>
@@ -698,6 +843,69 @@
       </div>
     </div>
   </section>
+
+  <section class="steps-section" id="how-it-works">
+    <div class="container">
+      <div class="steps-header">
+        <h2 class="steps-title">Covered in four steps.</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-illustration">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="35" height="35" rx="4" stroke="black" stroke-width="2" stroke-dasharray="4 2"/>
+              <rect x="55" y="10" width="35" height="35" rx="4" stroke="black" stroke-width="2"/>
+              <rect x="10" y="55" width="35" height="35" rx="4" stroke="black" stroke-width="2"/>
+              <rect x="55" y="55" width="35" height="35" rx="4" stroke="black" stroke-width="2"/>
+              <path d="M72 22L78 28L88 18" stroke="#E31C23" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="step-num">Step 01</span>
+          <h4>Pick a category</h4>
+          <p>Start with health, device, motor, travel, agriculture, or life cover.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-illustration">
+            <svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="45" height="80" rx="2" stroke="black" stroke-width="1.5"/>
+              <rect x="65" y="10" width="45" height="80" rx="2" stroke="black" stroke-width="1.5"/>
+              <path d="M15 25H40M15 35H30M15 45H35" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+              <path d="M70 25H95M70 35H85M70 45H100" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+              <path d="M60 55L64.5 64L74 65.5L67 72L68.5 81.5L60 77L51.5 81.5L53 72L46 65.5L55.5 64L60 55Z" fill="#E31C23"/>
+            </svg>
+          </div>
+          <span class="step-num">Step 02</span>
+          <h4>Compare and choose</h4>
+          <p>Refine your calculator, rank plans, and compare the best options side by side.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-illustration">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="25" y="10" width="50" height="80" rx="8" stroke="black" stroke-width="2"/>
+              <rect x="35" y="65" width="30" height="12" rx="6" fill="#E31C23"/>
+              <path d="M80 60C70 65 75 85 85 80" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="50" cy="71" r="3" fill="white"/>
+            </svg>
+          </div>
+          <span class="step-num">Step 03</span>
+          <h4>Pay with Airtel Money</h4>
+          <p>Use Airtel Money or installment options to confirm your cover in minutes.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-illustration">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="15" width="60" height="70" rx="2" stroke="black" stroke-width="1.5"/>
+              <circle cx="75" cy="25" r="15" fill="#25D366"/>
+              <path d="M71 22L75 28L81 18" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="step-num">Step 04</span>
+          <h4>You are covered</h4>
+          <p>Your policy details, quote, and support path are delivered instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div id="compare-tray" class="compare-tray" aria-live="polite">
@@ -732,30 +940,46 @@
 
 <footer id="main-footer">
   <div class="container">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
-      <a href="approach-voice.html" style="text-decoration:none; color:inherit; background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px;">
-        <div style="color:var(--accent); font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px;">Variant 1</div>
-        <strong style="display:block; font-size:18px; letter-spacing:-0.03em; margin-bottom:6px;">Voice AI Entry</strong>
-        <span style="color:var(--ink-light); font-size:13px; line-height:1.6;">Open conversational intake that routes straight to listing when intent is clear.</span>
-      </a>
-      <a href="approach-guided.html" style="text-decoration:none; color:inherit; background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px;">
-        <div style="color:var(--accent); font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px;">Variant 2</div>
-        <strong style="display:block; font-size:18px; letter-spacing:-0.03em; margin-bottom:6px;">Guided Stepper</strong>
-        <span style="color:var(--ink-light); font-size:13px; line-height:1.6;">Structured health-first flow that builds a profile object before the user hits listing.</span>
-      </a>
-      <a href="approach-calculator.html" style="text-decoration:none; color:inherit; background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px;">
-        <div style="color:var(--accent); font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px;">Variant 3</div>
-        <strong style="display:block; font-size:18px; letter-spacing:-0.03em; margin-bottom:6px;">Direct Calculator</strong>
-        <span style="color:var(--ink-light); font-size:13px; line-height:1.6;">Single-page quote form for repeat or power users who want speed over guidance.</span>
-      </a>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--ink-light);">
-      <p>2026 NxtInsure x Airtel Money Africa</p>
-      <div style="display: flex; gap: 24px;">
-        <a href="#" style="text-decoration:none; color:inherit">Terms</a>
-        <a href="#" style="text-decoration:none; color:inherit">Privacy</a>
-        <a href="#" style="text-decoration:none; color:inherit">IRA Licensed</a>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-lockup">
+          <div class="logo">Nxt<span>Insure</span></div>
+          <div class="footer-divider"></div>
+          <div class="footer-airtel">
+            <div class="footer-airtel-badge">am</div>
+            Airtel Money
+          </div>
+        </div>
+        <p>Browse regulated insurance products, compare quotes, and pay through Airtel Money with a simpler digital journey.</p>
       </div>
+      <div class="footer-col">
+        <h5>Insurance</h5>
+        <ul>
+          <li><a href="#discovery-section">Health</a></li>
+          <li><a href="#discovery-section">Life</a></li>
+          <li><a href="#discovery-section">Device</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Journey</h5>
+        <ul>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="compare.html">Compare plans</a></li>
+          <li><a href="pdp.html">View product detail</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Help</h5>
+        <ul>
+          <li><a href="#">*185*7#</a></li>
+          <li><a href="#">Claims support</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 NxtInsure × Airtel Money Africa</p>
+      <p>Demo marketplace journey for discovery, compare, and purchase.</p>
     </div>
   </div>
 </footer>
